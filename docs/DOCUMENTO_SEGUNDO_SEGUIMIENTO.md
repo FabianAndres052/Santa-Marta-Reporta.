@@ -379,37 +379,49 @@ classDiagram
 
 ### 6.1 Diagrama de Casos de Uso
 
+![Diagrama de Casos de Uso - Santa Marta Reporta](diagrama_casos_uso.png)
+
 ```mermaid
 flowchart LR
-    subgraph Actores
-        Ciudadano((Ciudadano))
-        Admin((Administrador))
+    %% Actores
+    Ciudadano(["🧍 Ciudadano"])
+    Admin(["🧍 Administrador"])
+
+    subgraph Sistema ["Sistema Santa Marta Reporta"]
+        subgraph ModCiudadano ["Módulo Ciudadano"]
+            UC1(["Radicar reporte ciudadano"]):::greenUC
+            UC2(["Geolocalizar en mapa"]):::greenUC
+            UC3(["Adjuntar evidencia fotográfica"]):::greenUC
+            UC4(["Consultar muro y mapa general"]):::greenUC
+            UC5(["Apoyar reporte ('Me afecta')"]):::greenUC
+        end
+
+        subgraph ModAdmin ["Módulo Administrador"]
+            UC6(["Gestionar estados de incidencias"]):::blueUC
+            UC7(["Registrar respuesta oficial técnica"]):::blueUC
+            UC8(["Consultar estadísticas y métricas (KPIs)"]):::blueUC
+            UC9(["Exportar base de datos a CSV"]):::blueUC
+        end
     end
 
-    subgraph "Sistema Santa Marta Reporta"
-        UC1([CU-01: Radicar Incidencia])
-        UC2([CU-02: Geolocalizar en Mapa])
-        UC3([CU-03: Adjuntar Evidencia Fotográfica])
-        UC4([CU-04: Consultar Muro y Mapa General])
-        UC5([CU-05: Apoyar Reporte 'Me afecta'])
-        UC6([CU-06: Gestionar Estados])
-        UC7([CU-07: Emitir Respuesta Oficial])
-        UC8([CU-08: Consultar KPIs y Métricas])
-        UC9([CU-09: Exportar Reportes a CSV])
-    end
-
-    Ciudadano --> UC1
-    Ciudadano --> UC4
-    Ciudadano --> UC5
-    Ciudadano --> UC8
+    %% Asociaciones Ciudadano
+    Ciudadano --- UC1
+    Ciudadano --- UC4
+    Ciudadano --- UC5
     UC1 -.->|<<include>>| UC2
     UC1 -.->|<<include>>| UC3
 
-    Admin --> UC4
-    Admin --> UC6
-    Admin --> UC7
-    Admin --> UC8
-    Admin --> UC9
+    %% Asociaciones Administrador
+    Admin --- UC6
+    Admin --- UC7
+    Admin --- UC8
+    Admin --- UC9
+
+    classDef greenUC fill:#f0fdf4,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef blueUC fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e3a8a;
+    style ModCiudadano fill:#f0fdf4,stroke:#22c55e,stroke-width:2px;
+    style ModAdmin fill:#eff6ff,stroke:#3b82f6,stroke-width:2px;
+    style Sistema fill:#fafafa,stroke:#1f2937,stroke-width:2px;
 ```
 
 ### 6.2 Diagrama de Actividades (Ciclo Completo de una Incidencia)

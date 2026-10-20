@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" width="100%" height="100%">
+  <defs>
+    <!-- Marcador de flecha para relaciones include -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#1e3a8a" />
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#166534" />
+    </marker>
+    <style>
+      .actor-text { font-family: Arial, sans-serif; font-size: 15px; font-weight: bold; fill: #111827; text-anchor: middle; }
+      .system-title { font-family: Arial, sans-serif; font-size: 17px; font-weight: bold; fill: #374151; }
+      .usecase-text { font-family: Arial, sans-serif; font-size: 13.5px; font-weight: 500; text-anchor: middle; }
+      .link-line { stroke: #1f2937; stroke-width: 1.6; }
+      .dashed-line { stroke-dasharray: 5,4; stroke-width: 1.5; }
+    </style>
+  </defs>
+
+  <!-- FONDO GENERAL -->
+  <rect width="1000" height="650" fill="#ffffff" />
+
+  <!-- LÍMITE DEL SISTEMA (System Boundary) -->
+  <rect x="180" y="25" width="640" height="600" rx="16" ry="16" fill="#fafafa" stroke="#1f2937" stroke-width="2" />
+  <text x="205" y="55" class="system-title">Sistema Santa Marta Reporta</text>
+
+  <!-- CONTENEDOR VERDE: MÓDULO CIUDADANO -->
+  <rect x="210" y="75" width="275" height="525" rx="12" ry="12" fill="#f0fdf4" stroke="#22c55e" stroke-width="2" />
+
+  <!-- CONTENEDOR AZUL: MÓDULO ADMINISTRADOR -->
+  <rect x="515" y="75" width="275" height="525" rx="12" ry="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" />
+
+  <!-- ================= ACTOR IZQUIERDO: CIUDADANO ================= -->
+  <!-- Cabeza -->
+  <circle cx="85" cy="300" r="18" fill="#ffffff" stroke="#1f2937" stroke-width="2.2" />
+  <!-- Cuerpo -->
+  <line x1="85" y1="318" x2="85" y2="365" stroke="#1f2937" stroke-width="2.2" />
+  <!-- Brazos -->
+  <line x1="55" y1="335" x2="115" y2="335" stroke="#1f2937" stroke-width="2.2" />
+  <!-- Pierna izquierda -->
+  <line x1="85" y1="365" x2="60" y2="415" stroke="#1f2937" stroke-width="2.2" />
+  <!-- Pierna derecha -->
+  <line x1="85" y1="365" x2="110" y2="415" stroke="#1f2937" stroke-width="2.2" />
+  <!-- Etiqueta Actor -->
+  <text x="85" y="440" class="actor-text">Ciudadano</text>
+
+  <!-- ================= ACTOR DERECHO: ADMINISTRADOR ================= -->
+  <!-- Cabeza -->
+  <circle cx="915" cy="300" r="18" fill="#ffffff" stroke="#1f2937" stroke-width="2.2" />
+  <!-- Cuerpo -->
+  <line x1="915" y1="318" x2="915" y2="365" stroke="#1f2937" stroke-width="2.2" />
+  <!-- Brazos -->
+  <line x1="885" y1="335" x2="945" y2="335" stroke="#1f2937" stroke-width="2.2" />
+  <!-- Pierna izquierda -->
+  <line x1="915" y1="365" x2="890" y2="415" stroke="#1f2937" stroke-width="2.2" />
+  <!-- Pierna derecha -->
+  <line x1="915" y1="365" x2="940" y2="415" stroke="#1f2937" stroke-width="2.2" />
+  <!-- Etiqueta Actor -->
+  <text x="915" y="440" class="actor-text">Administrador</text>
+
+  <!-- ================= LÍNEAS DE ASOCIACIÓN: CIUDADANO ================= -->
+  <!-- Hacia UC1: Radicar reporte -->
+  <line x1="115" y1="335" x2="250" y2="135" class="link-line" />
+  <!-- Hacia UC4: Consultar muro y mapa -->
+  <line x1="115" y1="335" x2="250" y2="435" class="link-line" />
+  <!-- Hacia UC5: Apoyar reporte ("Me afecta") -->
+  <line x1="115" y1="335" x2="250" y2="535" class="link-line" />
+
+  <!-- ================= CASOS DE USO: MÓDULO CIUDADANO (VERDE) ================= -->
+  <!-- UC1: Radicar reporte ciudadano -->
+  <ellipse cx="347" cy="135" rx="105" ry="34" fill="#ffffff" stroke="#16a34a" stroke-width="2" />
+  <text x="347" y="131" class="usecase-text" fill="#14532d">Radicar reporte</text>
+  <text x="347" y="149" class="usecase-text" fill="#14532d">ciudadano</text>
+
+  <!-- Flechas include a Geolocalizar y Foto -->
+  <line x1="347" y1="169" x2="347" y2="201" stroke="#166534" class="dashed-line" marker-end="url(#arrowGreen)" />
+  <line x1="347" y1="269" x2="347" y2="301" stroke="#166534" class="dashed-line" marker-end="url(#arrowGreen)" />
+
+  <!-- UC2: Geolocalizar en mapa -->
+  <ellipse cx="347" cy="235" rx="105" ry="34" fill="#ffffff" stroke="#16a34a" stroke-width="2" />
+  <text x="347" y="231" class="usecase-text" fill="#14532d">Geolocalizar</text>
+  <text x="347" y="249" class="usecase-text" fill="#14532d">en mapa</text>
+
+  <!-- UC3: Adjuntar evidencia fotográfica -->
+  <ellipse cx="347" cy="335" rx="105" ry="34" fill="#ffffff" stroke="#16a34a" stroke-width="2" />
+  <text x="347" y="331" class="usecase-text" fill="#14532d">Adjuntar evidencia</text>
+  <text x="347" y="349" class="usecase-text" fill="#14532d">fotográfica</text>
+
+  <!-- UC4: Consultar muro y mapa general -->
+  <ellipse cx="347" cy="435" rx="105" ry="34" fill="#ffffff" stroke="#16a34a" stroke-width="2" />
+  <text x="347" y="431" class="usecase-text" fill="#14532d">Consultar muro</text>
+  <text x="347" y="449" class="usecase-text" fill="#14532d">y mapa general</text>
+
+  <!-- UC5: Apoyar reporte ("Me afecta") -->
+  <ellipse cx="347" cy="535" rx="105" ry="34" fill="#ffffff" stroke="#16a34a" stroke-width="2" />
+  <text x="347" y="531" class="usecase-text" fill="#14532d">Apoyar reporte</text>
+  <text x="347" y="549" class="usecase-text" fill="#14532d">("Me afecta")</text>
+
+  <!-- ================= LÍNEAS DE ASOCIACIÓN: ADMINISTRADOR ================= -->
+  <!-- Hacia UC6: Gestionar estados -->
+  <line x1="885" y1="335" x2="750" y2="150" class="link-line" />
+  <!-- Hacia UC7: Respuesta oficial -->
+  <line x1="885" y1="335" x2="750" y2="275" class="link-line" />
+  <!-- Hacia UC8: KPIs y métricas -->
+  <line x1="885" y1="335" x2="750" y2="400" class="link-line" />
+  <!-- Hacia UC9: Exportar CSV -->
+  <line x1="885" y1="335" x2="750" y2="525" class="link-line" />
+
+  <!-- ================= CASOS DE USO: MÓDULO ADMINISTRADOR (AZUL) ================= -->
+  <!-- UC6: Gestionar estados de incidencias -->
+  <ellipse cx="652" cy="150" rx="105" ry="36" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+  <text x="652" y="146" class="usecase-text" fill="#1e3a8a">Gestionar estados</text>
+  <text x="652" y="164" class="usecase-text" fill="#1e3a8a">de incidencias</text>
+
+  <!-- UC7: Registrar respuesta oficial -->
+  <ellipse cx="652" cy="275" rx="105" ry="36" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+  <text x="652" y="271" class="usecase-text" fill="#1e3a8a">Registrar respuesta</text>
+  <text x="652" y="289" class="usecase-text" fill="#1e3a8a">oficial técnica</text>
+
+  <!-- UC8: Consultar métricas y KPIs -->
+  <ellipse cx="652" cy="400" rx="105" ry="36" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+  <text x="652" y="396" class="usecase-text" fill="#1e3a8a">Consultar estadísticas</text>
+  <text x="652" y="414" class="usecase-text" fill="#1e3a8a">y métricas (KPIs)</text>
+
+  <!-- UC9: Exportar reportes a CSV -->
+  <ellipse cx="652" cy="525" rx="105" ry="36" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+  <text x="652" y="521" class="usecase-text" fill="#1e3a8a">Exportar base</text>
+  <text x="652" y="539" class="usecase-text" fill="#1e3a8a">de datos a CSV</text>
+
+</svg>
