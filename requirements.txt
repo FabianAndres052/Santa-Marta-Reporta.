@@ -1,0 +1,29 @@
+# ==============================================================================
+# Requerimientos Técnicos y Dependencias del Sistema: Santa Marta Reporta
+# Arquitectura: Cliente-Servidor / MVC Multicapa
+# Entorno de Ejecución: Node.js (JavaScript) / Ubuntu Server LAN
+# ==============================================================================
+
+# Requisitos del Sistema Operativo y Runtime:
+# ------------------------------------------------------------------------------
+Operating-System: Ubuntu Server 20.04 LTS / 22.04 LTS / 24.04 LTS (o Windows 10/11)
+Node.js >= 18.0.0 (Recomendado v20 LTS o v22 LTS)
+npm >= 9.0.0
+SQLite3 >= 3.31.0
+Git >= 2.25.0
+
+# Dependencias del Núcleo Backend (Node.js / Express):
+# ------------------------------------------------------------------------------
+express==5.2.1          # Framework web HTTP para la creación de la API REST
+cors==2.8.6             # Middleware para habilitar peticiones Cross-Origin
+multer==2.4.0           # Middleware para manejo de multipart/form-data y subida de archivos
+sqlite==5.1.1           # Wrapper asíncrono basado en promesas para SQLite
+sqlite3==6.0.1          # Controlador nativo del motor de base de datos relacional SQLite
+
+# Requerimientos de Red y Puertos:
+# ------------------------------------------------------------------------------
+Network-Binding: 0.0.0.0 (Escucha en todas las interfaces de red local LAN)
+Default-Port: 3000 (TCP)
+Firewall-Rule: sudo ufw allow 3000/tcp
+Storage-Path: ./uploads/ (Requiere permisos de escritura chmod 775)
+Database-File: ./database.sqlite (Persistencia relacional local)

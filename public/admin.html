@@ -3,40 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administración - Santa Marta Reporta</title>
+    <title>Panel de Control y Gestión | Santa Marta Reporta</title>
+    
+    <!-- Tipografía Institucional -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-    <header>
-        <div class="logo-container">
-            <div class="logo-text">⚙️ Panel de Administración</div>
+<body style="background:#f1f5f9;">
+    <!-- Barra Superior de Administración -->
+    <header class="admin-navbar">
+        <a href="index.html" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:12px;" title="Volver al Portal Ciudadano">
+            <img src="images/escudo_santa_marta.png" alt="Escudo de Santa Marta" style="height:40px; width:auto; object-fit:contain;">
+            <div>
+                <div style="font-weight:700; font-size:1.1rem; letter-spacing:-0.01em;">Sistema de Gestión de Incidencias Urbanas</div>
+                <div style="font-size:0.75rem; color:#94a3b8;">Distrito de Santa Marta &bull; Módulo Administrativo y de Cuadrillas</div>
+            </div>
+            <span class="admin-badge">Auditoría</span>
+        </a>
+        <div>
+            <a href="index.html" class="btn-table-action" style="padding:0.5rem 0.9rem; text-decoration:none; background:#1e293b; color:#cbd5e1; border-color:#334155;">
+                <svg class="svg-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Portal Ciudadano
+            </a>
         </div>
-        <nav class="nav-links">
-            <a href="index.html">← Volver al Portal</a>
-        </nav>
     </header>
 
-    <main>
-        <div class="admin-table-container">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Fecha</th>
-                        <th>Categoría</th>
-                        <th>Ubicación</th>
-                        <th>Descripción</th>
-                        <th>Evidencia</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody id="adminReportsTable">
-                    <tr><td colspan="7">Cargando reportes...</td></tr>
-                </tbody>
-            </table>
+    <main class="admin-main-container">
+        
+        <!-- Métricas Administrativas -->
+        <section class="stats-container" style="margin: 0 0 1.5rem 0; padding: 0;">
+            <div class="stat-card">
+                <div class="stat-icon-wrapper" style="background:#e0f2fe; color:#0284c7;">
+                    <svg class="svg-icon" style="width:22px; height:22px;" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3 id="adminStatTotal">0</h3>
+                    <p>Total Registrados</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper" style="background:#fef3c7; color:#d97706;">
+                    <svg class="svg-icon" style="width:22px; height:22px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3 id="adminStatPending">0</h3>
+                    <p>En Espera</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper" style="background:#eff6ff; color:#2563eb;">
+                    <svg class="svg-icon" style="width:22px; height:22px;" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3 id="adminStatInProcess">0</h3>
+                    <p>En Intervención</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper" style="background:#ecfdf5; color:#059669;">
+                    <svg class="svg-icon" style="width:22px; height:22px;" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3 id="adminStatResolved">0</h3>
+                    <p>Resueltos</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper" style="background:#f1f5f9; color:#475569;">
+                    <svg class="svg-icon" style="width:22px; height:22px;" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                </div>
+                <div class="stat-info">
+                    <h3 id="adminStatVotes">0</h3>
+                    <p>Total Respaldos</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Barra de Filtros y Herramientas -->
+        <div class="admin-toolbar">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex:1;">
+                <div class="search-input-wrapper" style="max-width:300px;">
+                    <span class="search-icon">
+                        <svg class="svg-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </span>
+                    <input type="text" id="adminSearchInput" placeholder="Buscar por barrio o palabra clave...">
+                </div>
+
+                <select id="adminCategoryFilter" class="select-field" style="width:auto; padding:0.55rem 0.85rem; font-size:0.84rem;">
+                    <option value="Todas">Todas las Categorías</option>
+                    <option value="Malla Vial y Pavimentación">Malla Vial</option>
+                    <option value="Gestión de Residuos y Aseo">Gestión de Residuos</option>
+                    <option value="Alumbrado Público y Energía">Alumbrado Público</option>
+                    <option value="Red de Acueducto y Alcantarillado">Acueducto y Alcantarillado</option>
+                    <option value="Parques y Espacio Público">Espacio Público</option>
+                    <option value="Otras Problemáticas Urbanas">Otras</option>
+                </select>
+
+                <select id="adminStatusFilter" class="select-field" style="width:auto; padding:0.55rem 0.85rem; font-size:0.84rem;">
+                    <option value="Todos">Todos los Estados</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="En proceso">En proceso</option>
+                    <option value="Resuelto">Resuelto</option>
+                </select>
+            </div>
+
+            <div>
+                <button type="button" id="btnExportCsv" class="btn-primary-action" style="width:auto; padding:0.6rem 1.1rem; font-size:0.84rem;">
+                    <svg class="svg-icon" style="width:15px; height:15px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Exportar Base de Datos (CSV)
+                </button>
+            </div>
         </div>
+
+        <!-- Tabla de Datos -->
+        <div style="background:var(--bg-surface); border-radius:var(--radius-md); border:1px solid var(--border-light); overflow:hidden; box-shadow:var(--shadow-sm);">
+            <div style="overflow-x:auto;">
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th style="width:55px;">ID</th>
+                            <th style="width:125px;">Radicación</th>
+                            <th>Categoría</th>
+                            <th>Ubicación y Sector</th>
+                            <th>Descripción de la Incidencia</th>
+                            <th style="width:90px;">Evidencia</th>
+                            <th style="width:75px;">Respaldos</th>
+                            <th style="width:145px;">Estado Operativo</th>
+                            <th style="width:180px;">Gestión de Cuadrilla</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminReportsTable">
+                        <tr>
+                            <td colspan="9" style="text-align:center; padding:3rem; color:var(--text-muted);">
+                                Cargando información de incidencias...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </main>
 
+    <!-- Modal para Respuesta Oficial / Nota de Cuadrilla -->
+    <div class="modal-overlay" id="notesModal">
+        <div class="modal-card">
+            <h3 style="font-size:1.15rem; margin-bottom:0.4rem; color:var(--text-heading);">Nota Oficial de Cuadrilla o Resolución</h3>
+            <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.1rem;">
+                Esta nota será visible públicamente en el portal ciudadano para informar sobre la gestión realizada.
+            </p>
+            <input type="hidden" id="modalReportId">
+            <div class="form-group">
+                <label for="modalNotesText">Detalle de la Cuadrilla o Solución:</label>
+                <textarea id="modalNotesText" rows="4" class="textarea-field" placeholder="Ej. Cuadrilla técnica asignada para reparación de fuga en sector Centro..."></textarea>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:1.25rem;">
+                <button type="button" id="btnCancelModal" class="btn-table-action" style="padding:0.5rem 0.9rem;">Cancelar</button>
+                <button type="button" id="btnSaveModalNotes" class="btn-primary-action" style="width:auto; padding:0.5rem 1rem;">Guardar Nota</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificación Flotante -->
     <div id="toast"></div>
 
     <script src="js/admin.js"></script>

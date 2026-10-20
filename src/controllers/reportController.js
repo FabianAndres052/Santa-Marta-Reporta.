@@ -15,13 +15,12 @@ const storage = multer.diskStorage({
         cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
-        // Generar un nombre único para evitar colisiones
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, uniqueSuffix + path.extname(file.originalname));
     }
 });
 
-// Filtro para validar tipos de archivo
+// Filtro de imágenes
 const fileFilter = (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (allowedTypes.includes(file.mimetype)) {
@@ -31,32 +30,29 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Middleware de Multer
 const upload = multer({ 
     storage: storage,
     fileFilter: fileFilter,
-    limits: {
-        fileSize: 5 * 1024 * 1024 // Límite de 5 MB
-    }
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 // Controlador para crear un reporte
 const createReport = async (req, res) => {
     try {
-        const { description, category, location } = req.body;
+        const { description, category, location, latitude, longitude } = req.body;
         
-        // Validaciones básicas
         if (!description || !category || !location) {
             return res.status(400).json({ error: 'Faltan datos obligatorios (categoría, descripción o ubicación).' });
         }
 
-        // Si se subió una imagen, guardar la ruta relativa
         const image_url = req.file ? `/uploads/${req.file.filename}` : null;
 
         const reportData = {
             description,
             category,
             location,
+            latitude: latitude ? parseFloat(latitude) : 11.24079,
+            longitude: longitude ? parseFloat(longitude) : -74.19904,
             image_url
         };
 
@@ -64,14 +60,15 @@ const createReport = async (req, res) => {
         res.status(201).json(newReport);
     } catch (error) {
         console.error('Error al crear el reporte:', error);
-        res.status(500).json({ error: 'Ocurrió un error al crear el reporte.' });
+        res.status(400).json({ error: error.message || 'Ocurrió un error al crear el reporte.' });
     }
 };
 
-// Controlador para obtener todos los reportes
+// Controlador para obtener reportes con filtros
 const getAllReports = async (req, res) => {
     try {
-        const reports = await reportService.getAllReports();
+        const { category, status, search } = req.query;
+        const reports = await reportService.getAllReports({ category, status, search });
         res.json(reports);
     } catch (error) {
         console.error('Error al obtener reportes:', error);
@@ -89,8 +86,18 @@ const getReportById = async (req, res) => {
         if (error.message === 'Reporte no encontrado') {
             return res.status(404).json({ error: error.message });
         }
-        console.error('Error al obtener el reporte:', error);
         res.status(500).json({ error: 'Ocurrió un error al obtener el reporte.' });
+    }
+};
+
+// Controlador para buscar un reporte por Radicado
+const getReportByRadicado = async (req, res) => {
+    try {
+        const { radicado } = req.params;
+        const report = await reportService.getReportByRadicado(radicado);
+        res.json(report);
+    } catch (error) {
+        res.status(404).json({ error: error.message });
     }
 };
 
@@ -110,11 +117,51 @@ const updateReportStatus = async (req, res) => {
         if (error.message === 'Reporte no encontrado') {
             return res.status(404).json({ error: error.message });
         }
-        if (error.message.includes('Estado no válido')) {
-            return res.status(400).json({ error: error.message });
-        }
-        console.error('Error al actualizar estado:', error);
-        res.status(500).json({ error: 'Ocurrió un error al actualizar el estado.' });
+        res.status(400).json({ error: error.message });
+    }
+};
+
+// Controlador para registrar un voto ciudadano
+const voteReport = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updatedReport = await reportService.voteReport(id);
+        res.json(updatedReport);
+    } catch (error) {
+        res.status(400).json({ error: error.message || 'Error al registrar el voto.' });
+    }
+};
+
+// Controlador para notas administrativas
+const updateAdminNotes = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { notes } = req.body;
+        const updatedReport = await reportService.updateAdminNotes(id, notes);
+        res.json(updatedReport);
+    } catch (error) {
+        res.status(400).json({ error: error.message || 'Error al actualizar las notas.' });
+    }
+};
+
+// Controlador para eliminar reporte
+const deleteReport = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = await reportService.deleteReport(id);
+        res.json({ message: 'Reporte eliminado correctamente', report: deleted });
+    } catch (error) {
+        res.status(400).json({ error: error.message || 'Error al eliminar el reporte.' });
+    }
+};
+
+// Controlador para obtener estadísticas y métricas del Dashboard
+const getStats = async (req, res) => {
+    try {
+        const stats = await reportService.getStats();
+        res.json(stats);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al calcular las estadísticas.' });
     }
 };
 
@@ -123,5 +170,10 @@ module.exports = {
     createReport,
     getAllReports,
     getReportById,
-    updateReportStatus
+    getReportByRadicado,
+    updateReportStatus,
+    voteReport,
+    updateAdminNotes,
+    deleteReport,
+    getStats
 };
