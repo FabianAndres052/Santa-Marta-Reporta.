@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" width="100%" height="100%">
+  <defs>
+    <!-- Marcador de flecha punteada -->
+    <marker id="arrowDown" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 1 1 L 5 9 L 9 1 z" fill="#1e293b" />
+    </marker>
+    <style>
+      .actor-label { font-family: 'Segoe UI', Arial, sans-serif; font-size: 16px; font-weight: 600; fill: #111827; text-anchor: middle; }
+      .oval-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 15px; font-weight: 500; fill: #0f172a; text-anchor: middle; }
+      .conn-line { stroke: #1e293b; stroke-width: 1.8; stroke-linecap: round; }
+      .dash-arrow { stroke: #1e293b; stroke-width: 1.8; stroke-dasharray: 6,5; }
+    </style>
+  </defs>
+
+  <!-- FONDO BLANCO -->
+  <rect width="1100" height="700" fill="#ffffff" />
+
+  <!-- LÍMITE DEL SISTEMA (CUADRO PRINCIPAL) -->
+  <rect x="200" y="30" width="700" height="640" rx="20" ry="20" fill="#ffffff" stroke="#1e293b" stroke-width="2.2" />
+
+  <!-- CONTENEDOR IZQUIERDO: CIUDADANO (VERDE) -->
+  <rect x="240" y="65" width="280" height="570" rx="14" ry="14" fill="#eef9f1" stroke="#48ab57" stroke-width="2" />
+
+  <!-- CONTENEDOR DERECHO: ADMINISTRADOR (AZUL) -->
+  <rect x="580" y="65" width="280" height="570" rx="14" ry="14" fill="#eef5fc" stroke="#3b82d9" stroke-width="2" />
+
+  <!-- ================= LÍNEAS DE CONEXIÓN: CIUDADANO ================= -->
+  <!-- A Oval 1 (y=150) -->
+  <line x1="120" y1="350" x2="275" y2="150" class="conn-line" />
+  <!-- A Oval 2 (y=280) -->
+  <line x1="120" y1="350" x2="275" y2="280" class="conn-line" />
+  <!-- A Oval 3 (y=410) -->
+  <line x1="120" y1="350" x2="275" y2="410" class="conn-line" />
+  <!-- A Oval 4 (y=540) -->
+  <line x1="120" y1="350" x2="275" y2="540" class="conn-line" />
+
+  <!-- ================= LÍNEAS DE CONEXIÓN: ADMINISTRADOR ================= -->
+  <!-- A Oval 1 (y=140) -->
+  <line x1="980" y1="350" x2="825" y2="140" class="conn-line" />
+  <!-- A Oval 3 (y=410) -->
+  <line x1="980" y1="350" x2="825" y2="410" class="conn-line" />
+  <!-- A Oval 4 (y=540) -->
+  <line x1="980" y1="350" x2="825" y2="540" class="conn-line" />
+
+  <!-- ================= OVALOS IZQUIERDA (VERDE - CIUDADANO) ================= -->
+  <!-- Oval 1: Registrar reporte -->
+  <ellipse cx="380" cy="150" rx="105" ry="38" fill="#ffffff" stroke="#2e8540" stroke-width="2" />
+  <text x="380" y="146" class="oval-text">Registrar</text>
+  <text x="380" y="165" class="oval-text">reporte ciudadano</text>
+
+  <!-- Oval 2: Consultar mapa y muro -->
+  <ellipse cx="380" cy="280" rx="105" ry="38" fill="#ffffff" stroke="#2e8540" stroke-width="2" />
+  <text x="380" y="276" class="oval-text">Consultar incidencias</text>
+  <text x="380" y="295" class="oval-text">en mapa y muro</text>
+
+  <!-- Oval 3: Apoyar reporte ("Me afecta") -->
+  <ellipse cx="380" cy="410" rx="105" ry="38" fill="#ffffff" stroke="#2e8540" stroke-width="2" />
+  <text x="380" y="406" class="oval-text">Apoyar reporte</text>
+  <text x="380" y="425" class="oval-text">comunitario ("Me afecta")</text>
+
+  <!-- Oval 4: Seguimiento del estado -->
+  <ellipse cx="380" cy="540" rx="105" ry="38" fill="#ffffff" stroke="#2e8540" stroke-width="2" />
+  <text x="380" y="536" class="oval-text">Verificar estado y</text>
+  <text x="380" y="555" class="oval-text">respuesta oficial</text>
+
+  <!-- ================= OVALOS DERECHA (AZUL - ADMINISTRADOR) ================= -->
+  <!-- Oval 1: Revisar reportes ciudadanos -->
+  <ellipse cx="720" cy="140" rx="105" ry="38" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+  <text x="720" y="136" class="oval-text">Revisar incidencias</text>
+  <text x="720" y="155" class="oval-text">reportadas</text>
+
+  <!-- Flecha punteada hacia abajo (include / flujo de gestión) -->
+  <line x1="720" y1="178" x2="720" y2="232" class="dash-arrow" marker-end="url(#arrowDown)" />
+
+  <!-- Oval 2: Gestionar y actualizar estado -->
+  <ellipse cx="720" cy="275" rx="105" ry="38" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+  <text x="720" y="271" class="oval-text">Gestionar y actualizar</text>
+  <text x="720" y="290" class="oval-text">estado (atención)</text>
+
+  <!-- Oval 3: Registrar respuesta técnica oficial -->
+  <ellipse cx="720" cy="410" rx="105" ry="38" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+  <text x="720" y="406" class="oval-text">Registrar respuesta</text>
+  <text x="720" y="425" class="oval-text">oficial de cuadrilla</text>
+
+  <!-- Oval 4: Exportar métricas y CSV -->
+  <ellipse cx="720" cy="540" rx="105" ry="38" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+  <text x="720" y="536" class="oval-text">Consultar KPIs y</text>
+  <text x="720" y="555" class="oval-text">exportar datos (CSV)</text>
+
+  <!-- ================= ACTOR IZQUIERDO: CIUDADANO ================= -->
+  <!-- Cabeza -->
+  <circle cx="95" cy="315" r="24" fill="#ffffff" stroke="#1e293b" stroke-width="2.4" />
+  <!-- Tronco -->
+  <line x1="95" y1="339" x2="95" y2="400" stroke="#1e293b" stroke-width="2.4" />
+  <!-- Brazos -->
+  <line x1="55" y1="355" x2="135" y2="355" stroke="#1e293b" stroke-width="2.4" />
+  <!-- Pierna izquierda -->
+  <line x1="95" y1="400" x2="65" y2="465" stroke="#1e293b" stroke-width="2.4" />
+  <!-- Pierna derecha -->
+  <line x1="95" y1="400" x2="125" y2="465" stroke="#1e293b" stroke-width="2.4" />
+  <!-- Nombre -->
+  <text x="95" y="495" class="actor-label">Ciudadano</text>
+
+  <!-- ================= ACTOR DERECHO: ADMINISTRADOR ================= -->
+  <!-- Cabeza -->
+  <circle cx="1005" cy="315" r="24" fill="#ffffff" stroke="#1e293b" stroke-width="2.4" />
+  <!-- Tronco -->
+  <line x1="1005" y1="339" x2="1005" y2="400" stroke="#1e293b" stroke-width="2.4" />
+  <!-- Brazos -->
+  <line x1="965" y1="355" x2="1045" y2="355" stroke="#1e293b" stroke-width="2.4" />
+  <!-- Pierna izquierda -->
+  <line x1="1005" y1="400" x2="975" y2="465" stroke="#1e293b" stroke-width="2.4" />
+  <!-- Pierna derecha -->
+  <line x1="1005" y1="400" x2="1035" y2="465" stroke="#1e293b" stroke-width="2.4" />
+  <!-- Nombre -->
+  <text x="1005" y="495" class="actor-label">Administrador</text>
+
+</svg>

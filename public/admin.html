@@ -1,0 +1,2857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Panel Administrativo | Santa Marta Reporta</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        /* =========================================================
+           VARIABLES
+        ========================================================= */
+
+        :root {
+            --blue-dark: #0c385b;
+            --blue-primary: #2563eb;
+            --blue-light: #e0f2fe;
+
+            --green: #059669;
+            --green-light: #ecfdf5;
+
+            --yellow: #d97706;
+            --yellow-light: #fef3c7;
+
+            --red: #dc2626;
+            --red-light: #fee2e2;
+
+            --bg-page: #f1f5f9;
+            --bg-surface: #ffffff;
+
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+
+            --border-light: #e2e8f0;
+
+            --shadow-sm:
+                0 1px 2px rgba(15, 23, 42, 0.05);
+
+            --shadow-md:
+                0 8px 25px rgba(15, 23, 42, 0.08);
+
+            --radius-md: 12px;
+        }
+
+
+        /* =========================================================
+           RESET
+        ========================================================= */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+
+            background: var(--bg-page);
+            color: var(--text-dark);
+
+            font-family:
+                "Plus Jakarta Sans",
+                Arial,
+                sans-serif;
+
+            min-height: 100vh;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+
+        /* =========================================================
+           NAVBAR
+        ========================================================= */
+
+        .admin-navbar {
+            min-height: 72px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0f172a,
+                    #0c385b
+                );
+
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 12px 32px;
+
+            box-shadow:
+                0 4px 15px rgba(15, 23, 42, 0.18);
+
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+
+            color: white;
+            text-decoration: none;
+        }
+
+        .admin-brand img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+        }
+
+        .brand-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .brand-subtitle {
+            margin-top: 2px;
+
+            font-size: 0.72rem;
+
+            color: #cbd5e1;
+        }
+
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+
+            margin-left: 12px;
+
+            padding: 5px 10px;
+
+            border-radius: 999px;
+
+            background: rgba(255,255,255,0.12);
+
+            color: #dbeafe;
+
+            font-size: 0.68rem;
+            font-weight: 700;
+        }
+
+        .btn-portal {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            padding: 9px 14px;
+
+            border: 1px solid #334155;
+            border-radius: 8px;
+
+            background: #1e293b;
+
+            color: #e2e8f0;
+
+            text-decoration: none;
+
+            font-size: 0.82rem;
+            font-weight: 600;
+
+            transition: 0.2s;
+        }
+
+        .btn-portal:hover {
+            background: #334155;
+            transform: translateY(-1px);
+        }
+
+
+        /* =========================================================
+           MAIN
+        ========================================================= */
+
+        .admin-main-container {
+            width: min(1500px, calc(100% - 40px));
+
+            margin: 0 auto;
+
+            padding: 28px 0 50px;
+        }
+
+
+        /* =========================================================
+           TITLE
+        ========================================================= */
+
+        .page-title {
+            margin-bottom: 20px;
+        }
+
+        .page-title h1 {
+            margin: 0;
+
+            font-family: "Space Grotesk", sans-serif;
+
+            font-size: 1.65rem;
+
+            color: var(--blue-dark);
+        }
+
+        .page-title p {
+            margin: 5px 0 0;
+
+            color: var(--text-muted);
+
+            font-size: 0.86rem;
+        }
+
+
+        /* =========================================================
+           STATS
+        ========================================================= */
+
+        .stats-container {
+            display: grid;
+
+            grid-template-columns:
+                repeat(5, minmax(0, 1fr));
+
+            gap: 15px;
+
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            min-height: 105px;
+
+            background: white;
+
+            border: 1px solid var(--border-light);
+
+            border-radius: var(--radius-md);
+
+            padding: 18px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 13px;
+
+            box-shadow: var(--shadow-sm);
+
+            transition:
+                transform 0.2s,
+                box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-icon-wrapper {
+            width: 48px;
+            height: 48px;
+
+            flex-shrink: 0;
+
+            border-radius: 12px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-info h3 {
+            margin: 0;
+
+            font-family: "Space Grotesk", sans-serif;
+
+            font-size: 1.65rem;
+
+            line-height: 1;
+        }
+
+        .stat-info p {
+            margin: 6px 0 0;
+
+            color: var(--text-muted);
+
+            font-size: 0.76rem;
+
+            font-weight: 600;
+        }
+
+
+        /* =========================================================
+           TOOLBAR
+        ========================================================= */
+
+        .admin-toolbar {
+            background: white;
+
+            border: 1px solid var(--border-light);
+
+            border-radius: var(--radius-md);
+
+            padding: 15px;
+
+            margin-bottom: 16px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 12px;
+
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toolbar-left {
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            flex-wrap: wrap;
+
+            flex: 1;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+
+            width: 300px;
+        }
+
+        .search-icon {
+            position: absolute;
+
+            left: 11px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            color: #94a3b8;
+        }
+
+        #adminSearchInput {
+            width: 100%;
+
+            height: 40px;
+
+            border: 1px solid var(--border-light);
+
+            border-radius: 8px;
+
+            padding: 0 12px 0 35px;
+
+            outline: none;
+
+            font-size: 0.82rem;
+
+            color: var(--text-dark);
+
+            background: white;
+        }
+
+        #adminSearchInput:focus {
+            border-color: var(--blue-primary);
+
+            box-shadow:
+                0 0 0 3px rgba(37, 99, 235, 0.10);
+        }
+
+        .select-field {
+            height: 40px;
+
+            border: 1px solid var(--border-light);
+
+            border-radius: 8px;
+
+            padding: 0 12px;
+
+            background: white;
+
+            color: var(--text-dark);
+
+            outline: none;
+
+            font-size: 0.82rem;
+
+            cursor: pointer;
+        }
+
+        .select-field:focus {
+            border-color: var(--blue-primary);
+        }
+
+
+        /* =========================================================
+           BUTTONS
+        ========================================================= */
+
+        .btn-primary-action {
+            height: 40px;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 7px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            padding: 0 15px;
+
+            background: var(--blue-primary);
+
+            color: white;
+
+            font-weight: 700;
+
+            font-size: 0.78rem;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        .btn-primary-action:hover {
+            background: #1d4ed8;
+
+            transform: translateY(-1px);
+        }
+
+        .btn-table-action {
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 5px;
+
+            min-height: 34px;
+
+            padding: 6px 10px;
+
+            border: 1px solid var(--border-light);
+
+            border-radius: 7px;
+
+            background: white;
+
+            color: #334155;
+
+            cursor: pointer;
+
+            font-size: 0.72rem;
+
+            font-weight: 700;
+
+            text-decoration: none;
+
+            transition: 0.2s;
+        }
+
+        .btn-table-action:hover {
+            background: #f8fafc;
+
+            border-color: #cbd5e1;
+        }
+
+
+        /* =========================================================
+           TABLE
+        ========================================================= */
+
+        .table-card {
+            background: white;
+
+            border: 1px solid var(--border-light);
+
+            border-radius: var(--radius-md);
+
+            overflow: hidden;
+
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table-header {
+            padding: 18px 20px;
+
+            border-bottom: 1px solid var(--border-light);
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+        }
+
+        .table-header h2 {
+            margin: 0;
+
+            font-family: "Space Grotesk", sans-serif;
+
+            font-size: 1.05rem;
+
+            color: var(--blue-dark);
+        }
+
+        .table-header span {
+            color: var(--text-muted);
+
+            font-size: 0.75rem;
+        }
+
+        .table-scroll {
+            width: 100%;
+
+            overflow-x: auto;
+        }
+
+        .styled-table {
+            width: 100%;
+
+            min-width: 1250px;
+
+            border-collapse: collapse;
+        }
+
+        .styled-table th {
+            background: #f8fafc;
+
+            color: #475569;
+
+            text-align: left;
+
+            padding: 13px 12px;
+
+            border-bottom: 1px solid var(--border-light);
+
+            font-size: 0.71rem;
+
+            font-weight: 800;
+
+            white-space: nowrap;
+        }
+
+        .styled-table td {
+            padding: 13px 12px;
+
+            border-bottom: 1px solid #eef2f7;
+
+            vertical-align: middle;
+
+            color: #334155;
+
+            font-size: 0.75rem;
+        }
+
+        .styled-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .description-cell {
+            max-width: 250px;
+
+            line-height: 1.45;
+        }
+
+        .location-cell {
+            max-width: 180px;
+
+            line-height: 1.45;
+        }
+
+
+        /* =========================================================
+           BADGES
+        ========================================================= */
+
+        .status-badge {
+            display: inline-flex;
+
+            align-items: center;
+
+            padding: 5px 8px;
+
+            border-radius: 999px;
+
+            font-size: 0.66rem;
+
+            font-weight: 800;
+
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: var(--yellow-light);
+            color: #92400e;
+        }
+
+        .status-process {
+            background: var(--blue-light);
+            color: #1d4ed8;
+        }
+
+        .status-resolved {
+            background: var(--green-light);
+            color: #047857;
+        }
+
+        .status-unknown {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+
+        /* =========================================================
+           EMPTY STATE
+        ========================================================= */
+
+        .empty-state {
+            padding: 55px 20px;
+
+            text-align: center;
+
+            color: var(--text-muted);
+        }
+
+        .empty-state strong {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: #475569;
+
+            font-size: 0.95rem;
+        }
+
+        .empty-state p {
+            margin: 0;
+
+            font-size: 0.78rem;
+        }
+
+
+        /* =========================================================
+           MODAL
+        ========================================================= */
+
+        .modal-overlay {
+            position: fixed;
+
+            inset: 0;
+
+            background: rgba(15, 23, 42, 0.55);
+
+            display: none;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 20px;
+
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            width: min(560px, 100%);
+
+            background: white;
+
+            border-radius: 14px;
+
+            padding: 24px;
+
+            box-shadow:
+                0 25px 70px rgba(15, 23, 42, 0.25);
+        }
+
+        .modal-card h3 {
+            margin: 0 0 6px;
+
+            color: var(--blue-dark);
+
+            font-family: "Space Grotesk", sans-serif;
+        }
+
+        .modal-card p {
+            color: var(--text-muted);
+
+            font-size: 0.8rem;
+
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-top: 16px;
+        }
+
+        .form-group label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-size: 0.76rem;
+
+            font-weight: 700;
+
+            color: #334155;
+        }
+
+        .textarea-field {
+            width: 100%;
+
+            resize: vertical;
+
+            min-height: 120px;
+
+            padding: 11px;
+
+            border: 1px solid var(--border-light);
+
+            border-radius: 8px;
+
+            outline: none;
+
+            font-size: 0.82rem;
+        }
+
+        .textarea-field:focus {
+            border-color: var(--blue-primary);
+
+            box-shadow:
+                0 0 0 3px rgba(37, 99, 235, 0.10);
+        }
+
+        .modal-actions {
+            display: flex;
+
+            justify-content: flex-end;
+
+            gap: 8px;
+
+            margin-top: 18px;
+        }
+
+
+        /* =========================================================
+           TOAST
+        ========================================================= */
+
+        #toast {
+            position: fixed;
+
+            right: 22px;
+
+            bottom: 22px;
+
+            z-index: 2000;
+
+            min-width: 260px;
+
+            max-width: 420px;
+
+            padding: 13px 16px;
+
+            border-radius: 9px;
+
+            background: #0f172a;
+
+            color: white;
+
+            box-shadow: var(--shadow-md);
+
+            font-size: 0.78rem;
+
+            font-weight: 600;
+
+            transform: translateY(20px);
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            transition: 0.25s;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+
+            opacity: 1;
+        }
+
+        #toast.success {
+            background: #047857;
+        }
+
+        #toast.error {
+            background: #b91c1c;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 1100px) {
+
+            .stats-container {
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
+            }
+
+        }
+
+        @media (max-width: 760px) {
+
+            .admin-navbar {
+                padding: 12px 16px;
+            }
+
+            .admin-badge {
+                display: none;
+            }
+
+            .btn-portal {
+                font-size: 0;
+
+                width: 38px;
+                height: 38px;
+
+                padding: 0;
+            }
+
+            .btn-portal svg {
+                margin: auto;
+            }
+
+            .admin-main-container {
+                width: calc(100% - 24px);
+
+                padding-top: 18px;
+            }
+
+            .stats-container {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+            .admin-toolbar {
+                align-items: stretch;
+
+                flex-direction: column;
+            }
+
+            .toolbar-left {
+                width: 100%;
+            }
+
+            .search-input-wrapper {
+                width: 100%;
+
+                max-width: none;
+            }
+
+        }
+
+        @media (max-width: 480px) {
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-title {
+                font-size: 0.9rem;
+            }
+
+            .brand-subtitle {
+                display: none;
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
+
+<header class="admin-navbar">
+
+    <a
+        href="index.html"
+        class="admin-brand"
+        title="Volver al Portal Ciudadano"
+    >
+
+        <img
+            src="images/escudo_santa_marta.png"
+            alt="Escudo de Santa Marta"
+        >
+
+        <div>
+
+            <div class="brand-title">
+                Sistema de Gestión de Incidencias Urbanas
+            </div>
+
+            <div class="brand-subtitle">
+                Distrito de Santa Marta • Módulo Administrativo y de Cuadrillas
+            </div>
+
+        </div>
+
+        <span class="admin-badge">
+            Auditoría
+        </span>
+
+    </a>
+
+
+    <a
+        href="index.html"
+        class="btn-portal"
+    >
+
+        <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+        >
+            <line
+                x1="19"
+                y1="12"
+                x2="5"
+                y2="12"
+            />
+
+            <polyline
+                points="12 19 5 12 12 5"
+            />
+        </svg>
+
+        Portal Ciudadano
+
+    </a>
+
+</header>
+
+
+<!-- =========================================================
+     CONTENIDO
+========================================================= -->
+
+<main class="admin-main-container">
+
+
+    <section class="page-title">
+
+        <h1>
+            Panel de Control Administrativo
+        </h1>
+
+        <p>
+            Gestión, seguimiento y trazabilidad de las incidencias urbanas.
+        </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         MÉTRICAS
+    ====================================================== -->
+
+    <section class="stats-container">
+
+
+        <div class="stat-card">
+
+            <div
+                class="stat-icon-wrapper"
+                style="background:#e0f2fe;color:#0284c7;"
+            >
+                📊
+            </div>
+
+            <div class="stat-info">
+
+                <h3 id="adminStatTotal">
+                    0
+                </h3>
+
+                <p>
+                    Total Registrados
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div
+                class="stat-icon-wrapper"
+                style="background:#fef3c7;color:#d97706;"
+            >
+                ⏱
+            </div>
+
+            <div class="stat-info">
+
+                <h3 id="adminStatPending">
+                    0
+                </h3>
+
+                <p>
+                    En Espera
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div
+                class="stat-icon-wrapper"
+                style="background:#eff6ff;color:#2563eb;"
+            >
+                🔧
+            </div>
+
+            <div class="stat-info">
+
+                <h3 id="adminStatInProcess">
+                    0
+                </h3>
+
+                <p>
+                    En Intervención
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div
+                class="stat-icon-wrapper"
+                style="background:#ecfdf5;color:#059669;"
+            >
+                ✓
+            </div>
+
+            <div class="stat-info">
+
+                <h3 id="adminStatResolved">
+                    0
+                </h3>
+
+                <p>
+                    Resueltos
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div
+                class="stat-icon-wrapper"
+                style="background:#f1f5f9;color:#475569;"
+            >
+                👍
+            </div>
+
+            <div class="stat-info">
+
+                <h3 id="adminStatVotes">
+                    0
+                </h3>
+
+                <p>
+                    Total Respaldos
+                </p>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- =====================================================
+         FILTROS
+    ====================================================== -->
+
+    <div class="admin-toolbar">
+
+
+        <div class="toolbar-left">
+
+
+            <div class="search-input-wrapper">
+
+                <span class="search-icon">
+                    🔎
+                </span>
+
+                <input
+                    type="text"
+                    id="adminSearchInput"
+                    placeholder="Buscar por barrio o palabra clave..."
+                >
+
+            </div>
+
+
+            <select
+                id="adminCategoryFilter"
+                class="select-field"
+            >
+
+                <option value="Todas">
+                    Todas las Categorías
+                </option>
+
+                <option value="Malla Vial y Pavimentación">
+                    Malla Vial
+                </option>
+
+                <option value="Gestión de Residuos y Aseo">
+                    Gestión de Residuos
+                </option>
+
+                <option value="Alumbrado Público y Energía">
+                    Alumbrado Público
+                </option>
+
+                <option value="Red de Acueducto y Alcantarillado">
+                    Acueducto y Alcantarillado
+                </option>
+
+                <option value="Parques y Espacio Público">
+                    Espacio Público
+                </option>
+
+                <option value="Otras Problemáticas Urbanas">
+                    Otras
+                </option>
+
+            </select>
+
+
+            <select
+                id="adminStatusFilter"
+                class="select-field"
+            >
+
+                <option value="Todos">
+                    Todos los Estados
+                </option>
+
+                <option value="Pendiente">
+                    Pendiente
+                </option>
+
+                <option value="En proceso">
+                    En proceso
+                </option>
+
+                <option value="Resuelto">
+                    Resuelto
+                </option>
+
+            </select>
+
+
+        </div>
+
+
+        <button
+            type="button"
+            id="btnExportCsv"
+            class="btn-primary-action"
+        >
+
+            ↓
+
+            Exportar CSV
+
+        </button>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         TABLA
+    ====================================================== -->
+
+    <section class="table-card">
+
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    Incidencias Registradas
+                </h2>
+
+                <span id="tableCounter">
+                    0 incidencias
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-scroll">
+
+            <table class="styled-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th style="width:55px;">
+                            ID
+                        </th>
+
+                        <th style="width:125px;">
+                            Radicación
+                        </th>
+
+                        <th>
+                            Categoría
+                        </th>
+
+                        <th>
+                            Ubicación y Sector
+                        </th>
+
+                        <th>
+                            Descripción
+                        </th>
+
+                        <th>
+                            Evidencia
+                        </th>
+
+                        <th>
+                            Respaldos
+                        </th>
+
+                        <th>
+                            Estado Operativo
+                        </th>
+
+                        <th>
+                            Gestión de Cuadrilla
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="adminReportsTable">
+
+                    <tr>
+
+                        <td
+                            colspan="9"
+                            class="empty-state"
+                        >
+
+                            <strong>
+                                Cargando información...
+                            </strong>
+
+                            <p>
+                                Espere un momento.
+                            </p>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+
+            </table>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+<!-- =========================================================
+     MODAL DE NOTA
+========================================================= -->
+
+<div
+    class="modal-overlay"
+    id="notesModal"
+>
+
+
+    <div class="modal-card">
+
+
+        <h3>
+            Nota Oficial de Cuadrilla o Resolución
+        </h3>
+
+
+        <p>
+            Esta nota será visible públicamente en el portal ciudadano
+            para informar sobre la gestión realizada.
+        </p>
+
+
+        <input
+            type="hidden"
+            id="modalReportId"
+        >
+
+
+        <div class="form-group">
+
+            <label for="modalNotesText">
+                Detalle de la Cuadrilla o Solución
+            </label>
+
+            <textarea
+                id="modalNotesText"
+                class="textarea-field"
+                rows="5"
+                placeholder="Ej. Cuadrilla técnica asignada para reparación de fuga en sector Centro..."
+            ></textarea>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                id="btnCancelModal"
+                class="btn-table-action"
+            >
+                Cancelar
+            </button>
+
+
+            <button
+                type="button"
+                id="btnSaveModalNotes"
+                class="btn-primary-action"
+            >
+                Guardar Nota
+            </button>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     TOAST
+========================================================= -->
+
+<div id="toast"></div>
+
+
+<script>
+
+"use strict";
+
+
+/* ============================================================
+   CONFIGURACIÓN
+============================================================ */
+
+/*
+    El sistema intenta encontrar los datos en varias ubicaciones
+    para que el administrador sea compatible con tu proyecto.
+
+    Si tu backend ya entrega los reportes mediante una API,
+    agrega aquí la ruta correspondiente.
+*/
+
+const API_ENDPOINTS = [
+
+    "/api/incidencias",
+
+    "/api/reports",
+
+    "/api/reportes",
+
+    "/api/incidents",
+
+    "/incidencias",
+
+    "/reports"
+
+];
+
+
+let allReports = [];
+
+let filteredReports = [];
+
+let selectedReportId = null;
+
+
+/* ============================================================
+   UTILIDADES
+============================================================ */
+
+function escapeHTML(value) {
+
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    return String(value)
+
+        .replace(/&/g, "&amp;")
+
+        .replace(/</g, "&lt;")
+
+        .replace(/>/g, "&gt;")
+
+        .replace(/"/g, "&quot;")
+
+        .replace(/'/g, "&#039;");
+}
+
+
+function getFirst(obj, keys, defaultValue = "") {
+
+    for (const key of keys) {
+
+        if (
+            obj &&
+            obj[key] !== undefined &&
+            obj[key] !== null
+        ) {
+
+            return obj[key];
+
+        }
+
+    }
+
+    return defaultValue;
+}
+
+
+function normalizeReport(item, index) {
+
+    return {
+
+        id: getFirst(
+            item,
+            ["id", "ID", "reportId", "report_id"],
+            index + 1
+        ),
+
+        radicado: getFirst(
+            item,
+            [
+                "radicado",
+                "radicacion",
+                "radicación",
+                "numeroRadicado",
+                "codigo",
+                "code"
+            ],
+            "SMR-" + String(index + 1).padStart(4, "0")
+        ),
+
+        category: getFirst(
+            item,
+            [
+                "category",
+                "categoria",
+                "categoría",
+                "tipo",
+                "tipoProblematica"
+            ],
+            "Otras Problemáticas Urbanas"
+        ),
+
+        location: getFirst(
+            item,
+            [
+                "location",
+                "ubicacion",
+                "ubicación",
+                "direccion",
+                "dirección",
+                "barrio",
+                "sector"
+            ],
+            "Sin ubicación"
+        ),
+
+        description: getFirst(
+            item,
+            [
+                "description",
+                "descripcion",
+                "descripción",
+                "detalle",
+                "problem",
+                "problema"
+            ],
+            "Sin descripción"
+        ),
+
+        evidence: getFirst(
+            item,
+            [
+                "evidence",
+                "evidencia",
+                "image",
+                "imagen",
+                "photo",
+                "foto"
+            ],
+            ""
+        ),
+
+        votes: Number(
+            getFirst(
+                item,
+                [
+                    "votes",
+                    "respaldos",
+                    "backings",
+                    "apoyos",
+                    "likes"
+                ],
+                0
+            )
+        ) || 0,
+
+        status: getFirst(
+            item,
+            [
+                "status",
+                "estado",
+                "estadoOperativo"
+            ],
+            "Pendiente"
+        ),
+
+        notes: getFirst(
+            item,
+            [
+                "notes",
+                "nota",
+                "notas",
+                "gestion",
+                "gestión",
+                "solution",
+                "solucion",
+                "solución"
+            ],
+            ""
+        )
+
+    };
+
+}
+
+
+/* ============================================================
+   TOAST
+============================================================ */
+
+function showToast(message, type = "") {
+
+    const toast = document.getElementById("toast");
+
+    toast.textContent = message;
+
+    toast.className = "";
+
+    toast.classList.add("show");
+
+    if (type) {
+        toast.classList.add(type);
+    }
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 3000);
+
+}
+
+
+/* ============================================================
+   LOCAL STORAGE
+============================================================ */
+
+function loadFromLocalStorage() {
+
+    const possibleKeys = [
+
+        "reports",
+        "reportes",
+        "incidencias",
+        "incidents",
+        "urbanReports",
+        "santaMartaReports",
+        "santaMartaIncidencias"
+
+    ];
+
+
+    for (const key of possibleKeys) {
+
+        try {
+
+            const value = localStorage.getItem(key);
+
+            if (!value) {
+                continue;
+            }
+
+            const parsed = JSON.parse(value);
+
+            if (Array.isArray(parsed)) {
+
+                return parsed;
+
+            }
+
+            if (
+                parsed &&
+                Array.isArray(parsed.data)
+            ) {
+
+                return parsed.data;
+
+            }
+
+            if (
+                parsed &&
+                Array.isArray(parsed.reports)
+            ) {
+
+                return parsed.reports;
+
+            }
+
+            if (
+                parsed &&
+                Array.isArray(parsed.reportes)
+            ) {
+
+                return parsed.reportes;
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "No se pudo leer localStorage:",
+                key,
+                error
+            );
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* ============================================================
+   API
+============================================================ */
+
+async function loadFromAPI() {
+
+    for (const endpoint of API_ENDPOINTS) {
+
+        try {
+
+            const response = await fetch(
+                endpoint,
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+
+            if (!response.ok) {
+                continue;
+            }
+
+
+            const data = await response.json();
+
+
+            if (Array.isArray(data)) {
+
+                return data;
+
+            }
+
+
+            if (
+                data &&
+                Array.isArray(data.data)
+            ) {
+
+                return data.data;
+
+            }
+
+
+            if (
+                data &&
+                Array.isArray(data.reports)
+            ) {
+
+                return data.reports;
+
+            }
+
+
+            if (
+                data &&
+                Array.isArray(data.reportes)
+            ) {
+
+                return data.reportes;
+
+            }
+
+
+            if (
+                data &&
+                Array.isArray(data.incidencias)
+            ) {
+
+                return data.incidencias;
+
+            }
+
+        } catch (error) {
+
+            console.log(
+                "Endpoint no disponible:",
+                endpoint
+            );
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* ============================================================
+   CARGAR DATOS
+============================================================ */
+
+async function loadReports() {
+
+    let data = null;
+
+
+    /*
+       Primero intentamos API.
+    */
+
+    data = await loadFromAPI();
+
+
+    /*
+       Si no existe API, usamos localStorage.
+    */
+
+    if (!data) {
+
+        data = loadFromLocalStorage();
+
+    }
+
+
+    /*
+       Si no encontramos nada mostramos tabla vacía.
+    */
+
+    if (!data) {
+
+        allReports = [];
+
+        filteredReports = [];
+
+        updateStats();
+
+        renderTable();
+
+        showToast(
+            "No se encontraron datos de incidencias.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    allReports = data.map(
+        normalizeReport
+    );
+
+
+    filteredReports = [...allReports];
+
+
+    updateStats();
+
+    renderTable();
+
+}
+
+
+/* ============================================================
+   ESTADOS
+============================================================ */
+
+function normalizeStatus(status) {
+
+    const value = String(
+        status || ""
+    )
+    .toLowerCase()
+    .trim();
+
+
+    if (
+        value.includes("resuelto") ||
+        value.includes("finalizado") ||
+        value.includes("cerrado")
+    ) {
+
+        return "Resuelto";
+
+    }
+
+
+    if (
+        value.includes("proceso") ||
+        value.includes("intervencion") ||
+        value.includes("intervención") ||
+        value.includes("asignado")
+    ) {
+
+        return "En proceso";
+
+    }
+
+
+    return "Pendiente";
+
+}
+
+
+function statusClass(status) {
+
+    const normalized =
+        normalizeStatus(status);
+
+
+    if (normalized === "Resuelto") {
+
+        return "status-resolved";
+
+    }
+
+
+    if (normalized === "En proceso") {
+
+        return "status-process";
+
+    }
+
+
+    return "status-pending";
+
+}
+
+
+/* ============================================================
+   ESTADÍSTICAS
+============================================================ */
+
+function updateStats() {
+
+    const total =
+        allReports.length;
+
+
+    const pending =
+        allReports.filter(
+            r =>
+                normalizeStatus(r.status)
+                === "Pendiente"
+        ).length;
+
+
+    const process =
+        allReports.filter(
+            r =>
+                normalizeStatus(r.status)
+                === "En proceso"
+        ).length;
+
+
+    const resolved =
+        allReports.filter(
+            r =>
+                normalizeStatus(r.status)
+                === "Resuelto"
+        ).length;
+
+
+    const votes =
+        allReports.reduce(
+            (sum, r) =>
+                sum + (
+                    Number(r.votes) || 0
+                ),
+            0
+        );
+
+
+    document.getElementById(
+        "adminStatTotal"
+    ).textContent = total;
+
+
+    document.getElementById(
+        "adminStatPending"
+    ).textContent = pending;
+
+
+    document.getElementById(
+        "adminStatInProcess"
+    ).textContent = process;
+
+
+    document.getElementById(
+        "adminStatResolved"
+    ).textContent = resolved;
+
+
+    document.getElementById(
+        "adminStatVotes"
+    ).textContent = votes;
+
+}
+
+
+/* ============================================================
+   FILTRAR
+============================================================ */
+
+function applyFilters() {
+
+    const search =
+        document.getElementById(
+            "adminSearchInput"
+        )
+        .value
+        .toLowerCase()
+        .trim();
+
+
+    const category =
+        document.getElementById(
+            "adminCategoryFilter"
+        ).value;
+
+
+    const status =
+        document.getElementById(
+            "adminStatusFilter"
+        ).value;
+
+
+    filteredReports =
+        allReports.filter(report => {
+
+
+            const searchable = (
+
+                String(report.radicado) +
+                " " +
+                String(report.category) +
+                " " +
+                String(report.location) +
+                " " +
+                String(report.description)
+
+            ).toLowerCase();
+
+
+            const matchesSearch =
+                !search ||
+                searchable.includes(search);
+
+
+            const matchesCategory =
+                category === "Todas" ||
+                report.category === category;
+
+
+            const matchesStatus =
+                status === "Todos" ||
+                normalizeStatus(
+                    report.status
+                ) === status;
+
+
+            return (
+                matchesSearch &&
+                matchesCategory &&
+                matchesStatus
+            );
+
+        });
+
+
+    renderTable();
+
+}
+
+
+/* ============================================================
+   RENDER TABLA
+============================================================ */
+
+function renderTable() {
+
+    const tbody =
+        document.getElementById(
+            "adminReportsTable"
+        );
+
+
+    const counter =
+        document.getElementById(
+            "tableCounter"
+        );
+
+
+    counter.textContent =
+        `${filteredReports.length} ${
+            filteredReports.length === 1
+                ? "incidencia"
+                : "incidencias"
+        }`;
+
+
+    if (!filteredReports.length) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="9"
+                    class="empty-state"
+                >
+
+                    <strong>
+                        No se encontraron incidencias
+                    </strong>
+
+                    <p>
+                        No existen registros que coincidan
+                        con los filtros seleccionados.
+                    </p>
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        filteredReports
+        .map(
+            (report, index) =>
+                createTableRow(
+                    report,
+                    index
+                )
+        )
+        .join("");
+
+}
+
+
+/* ============================================================
+   CREAR FILA
+============================================================ */
+
+function createTableRow(
+    report,
+    index
+) {
+
+    const status =
+        normalizeStatus(
+            report.status
+        );
+
+
+    const evidence =
+        report.evidence
+            ? `<span style="color:#059669;font-weight:700;">✓ Disponible</span>`
+            : `<span style="color:#94a3b8;">Sin evidencia</span>`;
+
+
+    return `
+
+        <tr>
+
+            <td>
+                <strong>
+                    ${escapeHTML(report.id)}
+                </strong>
+            </td>
+
+
+            <td>
+                <span
+                    style="
+                        font-family:monospace;
+                        font-weight:700;
+                        color:#0c385b;
+                    "
+                >
+                    ${escapeHTML(report.radicado)}
+                </span>
+            </td>
+
+
+            <td>
+                ${escapeHTML(report.category)}
+            </td>
+
+
+            <td class="location-cell">
+                ${escapeHTML(report.location)}
+            </td>
+
+
+            <td class="description-cell">
+                ${escapeHTML(report.description)}
+            </td>
+
+
+            <td>
+                ${evidence}
+            </td>
+
+
+            <td>
+                <strong>
+                    ${Number(report.votes) || 0}
+                </strong>
+            </td>
+
+
+            <td>
+
+                <select
+                    class="select-field status-selector"
+                    data-index="${index}"
+                    style="
+                        height:34px;
+                        font-size:0.7rem;
+                        padding:0 7px;
+                    "
+                >
+
+                    <option
+                        value="Pendiente"
+                        ${status === "Pendiente" ? "selected" : ""}
+                    >
+                        Pendiente
+                    </option>
+
+                    <option
+                        value="En proceso"
+                        ${status === "En proceso" ? "selected" : ""}
+                    >
+                        En proceso
+                    </option>
+
+                    <option
+                        value="Resuelto"
+                        ${status === "Resuelto" ? "selected" : ""}
+                    >
+                        Resuelto
+                    </option>
+
+                </select>
+
+            </td>
+
+
+            <td>
+
+                <button
+                    type="button"
+                    class="btn-table-action note-button"
+                    data-index="${index}"
+                >
+                    ✎ Gestionar
+                </button>
+
+                ${
+                    report.notes
+                        ? `
+                            <div
+                                style="
+                                    margin-top:6px;
+                                    color:#059669;
+                                    font-size:0.65rem;
+                                    font-weight:700;
+                                "
+                            >
+                                ✓ Con nota
+                            </div>
+                        `
+                        : ""
+                }
+
+            </td>
+
+        </tr>
+
+    `;
+
+}
+
+
+/* ============================================================
+   CAMBIO DE ESTADO
+============================================================ */
+
+function updateReportStatus(
+    filteredIndex,
+    newStatus
+) {
+
+    const report =
+        filteredReports[
+            filteredIndex
+        ];
+
+
+    if (!report) {
+        return;
+    }
+
+
+    report.status =
+        newStatus;
+
+
+    const original =
+        allReports.find(
+            r =>
+                String(r.id) ===
+                String(report.id)
+        );
+
+
+    if (original) {
+
+        original.status =
+            newStatus;
+
+    }
+
+
+    /*
+       Guardamos también en localStorage
+       para conservar el cambio cuando
+       el proyecto trabaja sin API.
+    */
+
+    saveLocalReports();
+
+
+    updateStats();
+
+    renderTable();
+
+
+    showToast(
+        "Estado actualizado correctamente.",
+        "success"
+    );
+
+}
+
+
+/* ============================================================
+   GUARDAR LOCAL
+============================================================ */
+
+function saveLocalReports() {
+
+    try {
+
+        localStorage.setItem(
+            "reports",
+            JSON.stringify(
+                allReports
+            )
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "No fue posible guardar localStorage.",
+            error
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   MODAL
+============================================================ */
+
+function openNotesModal(
+    filteredIndex
+) {
+
+    const report =
+        filteredReports[
+            filteredIndex
+        ];
+
+
+    if (!report) {
+        return;
+    }
+
+
+    selectedReportId =
+        report.id;
+
+
+    document.getElementById(
+        "modalReportId"
+    ).value =
+        report.id;
+
+
+    document.getElementById(
+        "modalNotesText"
+    ).value =
+        report.notes || "";
+
+
+    document.getElementById(
+        "notesModal"
+    ).classList.add(
+        "active"
+    );
+
+}
+
+
+function closeNotesModal() {
+
+    document.getElementById(
+        "notesModal"
+    ).classList.remove(
+        "active"
+    );
+
+
+    selectedReportId =
+        null;
+
+}
+
+
+/* ============================================================
+   GUARDAR NOTA
+============================================================ */
+
+function saveNote() {
+
+    if (selectedReportId === null) {
+
+        return;
+
+    }
+
+
+    const note =
+        document.getElementById(
+            "modalNotesText"
+        ).value.trim();
+
+
+    const report =
+        allReports.find(
+            r =>
+                String(r.id) ===
+                String(selectedReportId)
+        );
+
+
+    if (!report) {
+
+        showToast(
+            "No se encontró la incidencia.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    report.notes =
+        note;
+
+
+    saveLocalReports();
+
+    closeNotesModal();
+
+    renderTable();
+
+
+    showToast(
+        "Nota guardada correctamente.",
+        "success"
+    );
+
+}
+
+
+/* ============================================================
+   EXPORTAR CSV
+============================================================ */
+
+function exportCSV() {
+
+    if (!filteredReports.length) {
+
+        showToast(
+            "No hay incidencias para exportar.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const headers = [
+
+        "ID",
+
+        "Radicación",
+
+        "Categoría",
+
+        "Ubicación",
+
+        "Descripción",
+
+        "Respaldos",
+
+        "Estado",
+
+        "Gestión / Nota"
+
+    ];
+
+
+    const rows =
+        filteredReports.map(
+            report => [
+
+                report.id,
+
+                report.radicado,
+
+                report.category,
+
+                report.location,
+
+                report.description,
+
+                report.votes,
+
+                normalizeStatus(
+                    report.status
+                ),
+
+                report.notes
+
+            ]
+        );
+
+
+    const csv = [
+
+        headers,
+
+        ...rows
+
+    ]
+
+    .map(
+        row =>
+            row
+                .map(
+                    value =>
+                        `"${String(
+                            value ?? ""
+                        ).replace(
+                            /"/g,
+                            '""'
+                        )}"`
+                )
+                .join(",")
+    )
+
+    .join("\n");
+
+
+    const blob =
+        new Blob(
+            [
+                "\ufeff" +
+                csv
+            ],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        "incidencias_santa_marta.csv";
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+
+    URL.revokeObjectURL(
+        url
+    );
+
+
+    showToast(
+        "CSV exportado correctamente.",
+        "success"
+    );
+
+}
+
+
+/* ============================================================
+   EVENTOS
+============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+
+        document
+            .getElementById(
+                "adminSearchInput"
+            )
+            .addEventListener(
+                "input",
+                applyFilters
+            );
+
+
+        document
+            .getElementById(
+                "adminCategoryFilter"
+            )
+            .addEventListener(
+                "change",
+                applyFilters
+            );
+
+
+        document
+            .getElementById(
+                "adminStatusFilter"
+            )
+            .addEventListener(
+                "change",
+                applyFilters
+            );
+
+
+        document
+            .getElementById(
+                "btnExportCsv"
+            )
+            .addEventListener(
+                "click",
+                exportCSV
+            );
+
+
+        document
+            .getElementById(
+                "btnCancelModal"
+            )
+            .addEventListener(
+                "click",
+                closeNotesModal
+            );
+
+
+        document
+            .getElementById(
+                "btnSaveModalNotes"
+            )
+            .addEventListener(
+                "click",
+                saveNote
+            );
+
+
+        document
+            .getElementById(
+                "notesModal"
+            )
+            .addEventListener(
+                "click",
+                event => {
+
+                    if (
+                        event.target.id ===
+                        "notesModal"
+                    ) {
+
+                        closeNotesModal();
+
+                    }
+
+                }
+            );
+
+
+        document
+            .getElementById(
+                "adminReportsTable"
+            )
+            .addEventListener(
+                "change",
+                event => {
+
+                    if (
+                        event.target.classList.contains(
+                            "status-selector"
+                        )
+                    ) {
+
+                        const index =
+                            Number(
+                                event.target
+                                    .dataset
+                                    .index
+                            );
+
+
+                        updateReportStatus(
+                            index,
+                            event.target.value
+                        );
+
+                    }
+
+                }
+            );
+
+
+        document
+            .getElementById(
+                "adminReportsTable"
+            )
+            .addEventListener(
+                "click",
+                event => {
+
+                    const button =
+                        event.target.closest(
+                            ".note-button"
+                        );
+
+
+                    if (!button) {
+                        return;
+                    }
+
+
+                    const index =
+                        Number(
+                            button.dataset.index
+                        );
+
+
+                    openNotesModal(
+                        index
+                    );
+
+                }
+            );
+
+
+        /*
+           Cargar incidencias al entrar.
+        */
+
+        loadReports();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
