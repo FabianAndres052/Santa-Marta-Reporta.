@@ -18,6 +18,21 @@
     <script src="js/vendor/jspdf.umd.min.js"></script>
     <script src="js/vendor/jspdf-autotable.min.js"></script>
     
+    <!-- Verificación Inmediata de Sesión Ciudadana -->
+    <script>
+        (function() {
+            try {
+                var token = localStorage.getItem('sm_citizen_token');
+                var user = localStorage.getItem('sm_citizen_user');
+                if (!token || !user) {
+                    window.location.replace('/login');
+                }
+            } catch (e) {
+                window.location.replace('/login');
+            }
+        })();
+    </script>
+
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -464,76 +479,6 @@
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     Descargar Comprobante de Radicación (PDF)
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==============================================================================
-         MODAL DE ACCESO Y REGISTRO CIUDADANO (LOGIN / REGISTRO)
-         ============================================================================== -->
-    <div id="citizenAuthModal" class="citizen-auth-overlay">
-        <div class="citizen-auth-card">
-            <div class="citizen-auth-header">
-                <img src="images/escudo_santa_marta.png" alt="Escudo de Santa Marta">
-                <h2>Portal Ciudadano</h2>
-                <p>Alcaldía Distrital de Santa Marta • Identificación Requerida</p>
-            </div>
-
-            <div class="citizen-tabs-bar">
-                <button type="button" class="citizen-tab-btn active" id="tabBtnLogin" onclick="switchCitizenTab('login')">Iniciar Sesión</button>
-                <button type="button" class="citizen-tab-btn" id="tabBtnRegister" onclick="switchCitizenTab('register')">Registrarse</button>
-            </div>
-
-            <!-- TAB 1: INICIAR SESIÓN -->
-            <div id="citizenLoginTab" class="citizen-tab-content">
-                <form id="formCitizenLogin" autocomplete="on">
-                    <div class="citizen-input-group">
-                        <label for="citLoginEmail">Correo Electrónico *</label>
-                        <input type="email" id="citLoginEmail" placeholder="tu.correo@ejemplo.com" required autocomplete="email">
-                    </div>
-                    <div class="citizen-input-group">
-                        <label for="citLoginPassword">Contraseña *</label>
-                        <input type="password" id="citLoginPassword" placeholder="Tu contraseña" required autocomplete="current-password">
-                    </div>
-                    <button type="submit" class="btn-citizen-primary" id="btnSubmitCitLogin">Ingresar al Portal Ciudadano</button>
-                    <div style="text-align:center; margin-top:1.1rem; font-size:0.8rem; color:#64748b;">
-                        ¿No tienes una cuenta aún? 
-                        <a href="javascript:void(0)" onclick="switchCitizenTab('register')" style="color:#0284c7; font-weight:700; text-decoration:none;">Regístrate aquí</a>
-                    </div>
-                </form>
-            </div>
-
-            <!-- TAB 2: REGISTRO -->
-            <div id="citizenRegisterTab" class="citizen-tab-content" style="display:none;">
-                <form id="formCitizenRegister" autocomplete="off">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:0.75rem;">
-                        <div class="citizen-input-group" style="margin-bottom:0;">
-                            <label for="citRegFirstName">Nombre *</label>
-                            <input type="text" id="citRegFirstName" placeholder="Ej. Carlos" required>
-                        </div>
-                        <div class="citizen-input-group" style="margin-bottom:0;">
-                            <label for="citRegLastName">Apellido *</label>
-                            <input type="text" id="citRegLastName" placeholder="Ej. Mendoza" required>
-                        </div>
-                    </div>
-                    <div class="citizen-input-group">
-                        <label for="citRegEmail">Correo Electrónico *</label>
-                        <input type="email" id="citRegEmail" placeholder="correo@ejemplo.com" required>
-                    </div>
-                    <div class="citizen-input-group">
-                        <label for="citRegPhone">Teléfono Celular *</label>
-                        <input type="tel" id="citRegPhone" placeholder="3001234567" required>
-                    </div>
-                    <div class="citizen-input-group">
-                        <label for="citRegPassword">Crear Contraseña *</label>
-                        <input type="password" id="citRegPassword" placeholder="Mínimo 4 caracteres" minlength="4" required>
-                    </div>
-                    <button type="submit" class="btn-citizen-primary" id="btnSubmitCitReg">Registrarme e Ingresar</button>
-                    <div style="text-align:center; margin-top:1.1rem; font-size:0.8rem; color:#64748b;">
-                        ¿Ya tienes una cuenta? 
-                        <a href="javascript:void(0)" onclick="switchCitizenTab('login')" style="color:#0284c7; font-weight:700; text-decoration:none;">Inicia sesión aquí</a>
-                    </div>
-                </form>
             </div>
         </div>
     </div>

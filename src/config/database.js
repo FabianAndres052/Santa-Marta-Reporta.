@@ -88,11 +88,71 @@ async function initDatabase() {
             WHERE radicado IS NULL OR radicado = ''
         `);
 
-        console.log('Base de datos SQLite inicializada y radicados actualizados con éxito.');
+        // Reparación automática de categorías y caracteres con tildes corruptos en base de datos
+        await repairDatabaseText(db);
+
+        console.log('Base de datos SQLite inicializada, reparada y sincronizada en UTF-8.');
         return db;
     } catch (error) {
         console.error('Error al inicializar la base de datos:', error);
         throw error;
+    }
+}
+
+// Función auxiliar para normalizar categorías y limpiar caracteres mal codificados
+async function repairDatabaseText(db) {
+    try {
+        const rows = await db.all('SELECT id, category, location, description, admin_notes, citizen_name FROM reports');
+        for (const r of rows) {
+            let cat = r.category || '';
+            if (cat.includes('Alumbrado')) cat = 'Alumbrado Público y Energía';
+            else if (cat.includes('Malla') || cat.includes('Pavimentac')) cat = 'Malla Vial y Pavimentación';
+            else if (cat.includes('Residuo') || cat.includes('Aseo') || cat.includes('Basura')) cat = 'Gestión de Residuos y Aseo';
+            else if (cat.includes('Acueducto') || cat.includes('Alcantarillad')) cat = 'Red de Acueducto y Alcantarillado';
+            else if (cat.includes('Parque') || cat.includes('Espacio')) cat = 'Parques y Espacio Público';
+
+            let loc = (r.location || '')
+                .replace(/Hist[\ufffd?]?rico/g, 'Histórico')
+                .replace(/Bah[\ufffd?]?a/g, 'Bahía')
+                .replace(/Guzm[\ufffd?]?n/g, 'Guzmán');
+
+            let desc = (r.description || '')
+                .replace(/v[\ufffd?]?a/g, 'vía')
+                .replace(/tr[\ufffd?]?nsito/g, 'tránsito')
+                .replace(/bah[\ufffd?]?a/g, 'bahía')
+                .replace(/cr[\ufffd?]?tico/g, 'crítico')
+                .replace(/acumulaci[\ufffd?]?n/g, 'acumulación')
+                .replace(/tur[\ufffd?]?stico/g, 'turístico')
+                .replace(/p[\ufffd?]?blico/g, 'público')
+                .replace(/reparaci[\ufffd?]?n/g, 'reparación')
+                .replace(/atenci[\ufffd?]?n/g, 'atención')
+                .replace(/reposici[\ufffd?]?n/g, 'reposición');
+
+            let notes = (r.admin_notes || '')
+                .replace(/reposici[\ufffd?]?n/g, 'reposición')
+                .replace(/p[\ufffd?]?blico/g, 'público')
+                .replace(/inspecci[\ufffd?]?n/g, 'inspección')
+                .replace(/intervenci[\ufffd?]?n/g, 'intervención')
+                .replace(/soluci[\ufffd?]?n/g, 'solución');
+
+            let citName = (r.citizen_name || '')
+                .replace(/Mar[\ufffd?]?a/g, 'María')
+                .replace(/G[\ufffd?]?mez/g, 'Gómez')
+                .replace(/Andr[\ufffd?]?s/g, 'Andrés')
+                .replace(/Mart[\ufffd?]?nez/g, 'Martínez')
+                .replace(/P[\ufffd?]?rez/g, 'Pérez')
+                .replace(/Rodr[\ufffd?]?guez/g, 'Rodríguez')
+                .replace(/Hern[\ufffd?]?ndez/g, 'Hernández');
+
+            if (cat !== r.category || loc !== r.location || desc !== r.description || notes !== r.admin_notes || citName !== r.citizen_name) {
+                await db.run(
+                    'UPDATE reports SET category = ?, location = ?, description = ?, admin_notes = ?, citizen_name = ? WHERE id = ?',
+                    [cat, loc, desc, notes || null, citName, r.id]
+                );
+            }
+        }
+    } catch (e) {
+        console.warn('Advertencia en repairDatabaseText:', e.message);
     }
 }
 

@@ -13,6 +13,17 @@ let searchDebounceTimeout = null;
 let geocodeDebounceTimeout = null;
 let currentModalReport = null;
 
+// Elementos del DOM globales
+const trackingModal = document.getElementById('trackingModal');
+const btnCloseModal = document.getElementById('btnCloseModal');
+const btnDownloadCitizenPdf = document.getElementById('btnDownloadCitizenPdf');
+const btnVoteModal = document.getElementById('btnVoteModal');
+const citizenProfileModal = document.getElementById('citizenProfileModal');
+const btnUserAvatar = document.getElementById('btnUserAvatar');
+const btnOpenCitizenProfileFromBanner = document.getElementById('btnOpenCitizenProfileFromBanner');
+const btnCloseProfileModal = document.getElementById('btnCloseProfileModal');
+const btnLogoutCitizen = document.getElementById('btnLogoutCitizen');
+
 // Coordenadas centrales de la Bahía y Centro de Santa Marta
 const SANTA_MARTA_CENTER = [11.238, -74.205];
 
@@ -346,10 +357,6 @@ function renderRecentReports(reports) {
 // ------------------------------------------------------------------------------
 // Modal de Detalle y Trazabilidad Visual (Línea de Vida)
 // ------------------------------------------------------------------------------
-const trackingModal = document.getElementById('trackingModal');
-const btnCloseModal = document.getElementById('btnCloseModal');
-const btnDownloadCitizenPdf = document.getElementById('btnDownloadCitizenPdf');
-const btnVoteModal = document.getElementById('btnVoteModal');
 
 function updateVisualStepper(status) {
     const lineFill = document.getElementById('modalStepperLine');
@@ -380,25 +387,43 @@ function updateVisualStepper(status) {
     }
 }
 
-function openReportModal(id) {
-    const r = currentReports.find(item => item.id === id);
-    if (!r) return;
+async function openReportModal(id) {
+    let r = currentReports.find(item => item.id === id);
+    if (!r) {
+        try {
+            const res = await fetch(`${API_REPORTS_URL}/${id}`);
+            if (res.ok) r = await res.json();
+        } catch (e) {
+            console.error('Error al consultar reporte individual:', e);
+        }
+    }
+    if (!r) {
+        showToast('No fue posible cargar el reporte solicitado', true);
+        return;
+    }
     currentModalReport = r;
 
     const radCode = r.radicado || `SMR-2026-${String(r.id).padStart(4, '0')}`;
-    document.getElementById('modalRadicado').textContent = radCode;
-    document.getElementById('modalCategory').textContent = r.category;
-    document.getElementById('modalLocation').textContent = `📍 ${r.location}`;
-    document.getElementById('modalDescription').textContent = r.description;
+    const radEl = document.getElementById('modalRadicado');
+    if (radEl) radEl.textContent = radCode;
+    const catEl = document.getElementById('modalCategory');
+    if (catEl) catEl.textContent = r.category;
+    const locEl = document.getElementById('modalLocation');
+    if (locEl) locEl.textContent = `📍 ${r.location}`;
+    const descEl = document.getElementById('modalDescription');
+    if (descEl) descEl.textContent = r.description;
 
     let badgeBg = '#fef3c7', badgeColor = '#d97706';
     if (r.status === 'En proceso') { badgeBg = '#e0f2fe'; badgeColor = '#2563eb'; }
     if (r.status === 'Resuelto') { badgeBg = '#d1fae5'; badgeColor = '#059669'; }
-    document.getElementById('modalStatusBadge').innerHTML = `
-        <span style="background:${badgeBg}; color:${badgeColor}; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700;">
-            ● ${r.status}
-        </span>
-    `;
+    const badgeEl = document.getElementById('modalStatusBadge');
+    if (badgeEl) {
+        badgeEl.innerHTML = `
+            <span style="background:${badgeBg}; color:${badgeColor}; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700;">
+                ● ${r.status}
+            </span>
+        `;
+    }
 
     // Actualizar Línea de Vida Visual
     updateVisualStepper(r.status);
@@ -426,23 +451,27 @@ function openReportModal(id) {
 
     // Nota de Cuadrilla Oficial
     const noteBox = document.getElementById('modalAdminNoteContainer');
-    if (r.admin_notes) {
+    if (r.admin_notes && noteBox) {
         noteBox.style.display = 'block';
-        document.getElementById('modalAdminNote').textContent = r.admin_notes;
-    } else {
+        const noteText = document.getElementById('modalAdminNote');
+        if (noteText) noteText.textContent = r.admin_notes;
+    } else if (noteBox) {
         noteBox.style.display = 'none';
     }
 
     // Fotografía
     const imgBox = document.getElementById('modalImageContainer');
-    if (r.image_url) {
-        imgBox.innerHTML = `<img src="${r.image_url}" style="width:100%; max-height:220px; object-fit:cover; border-radius:6px; border:1px solid #e2e8f0; margin-bottom:1rem;">`;
-    } else {
-        imgBox.innerHTML = '';
+    if (imgBox) {
+        if (r.image_url) {
+            imgBox.innerHTML = `<img src="${r.image_url}" style="width:100%; max-height:220px; object-fit:cover; border-radius:6px; border:1px solid #e2e8f0; margin-bottom:1rem;">`;
+        } else {
+            imgBox.innerHTML = '';
+        }
     }
 
-    trackingModal.style.display = 'flex';
+    if (trackingModal) trackingModal.style.display = 'flex';
 }
+window.openReportModal = openReportModal;
 
 btnCloseModal?.addEventListener('click', () => {
     trackingModal.style.display = 'none';
@@ -642,7 +671,7 @@ document.getElementById('reportForm')?.addEventListener('submit', async (e) => {
     const citizen = getCurrentCitizen();
     if (!citizen) {
         showToast('Debes iniciar sesión para radicar una incidencia', true);
-        openCitizenAuthModal('login');
+        window.location.replace('/login');
         return;
     }
 
@@ -666,12 +695,16 @@ document.getElementById('reportForm')?.addEventListener('submit', async (e) => {
             return;
         }
 
-        // Datos del ciudadano logueado
-        formData.set('first_name', citizen.first_name);
-        formData.set('last_name', citizen.last_name);
-        formData.set('citizen_name', citizen.full_name);
-        formData.set('citizen_email', citizen.email);
-        formData.set('citizen_phone', citizen.phone);
+        // Datos del ciudadano logueado garantizados
+        const fName = citizen.first_name || (citizen.full_name ? citizen.full_name.split(' ')[0] : 'Ciudadano');
+        const lName = citizen.last_name || (citizen.full_name ? citizen.full_name.split(' ').slice(1).join(' ') : 'Distrital');
+        const fFullName = citizen.full_name || `${fName} ${lName}`;
+
+        formData.set('first_name', fName);
+        formData.set('last_name', lName);
+        formData.set('citizen_name', fFullName);
+        formData.set('citizen_email', citizen.email || 'ciudadano@santamarta.gov.co');
+        formData.set('citizen_phone', citizen.phone || '3001234567');
 
         if (locInput) {
             formData.set('location', locInput);
@@ -782,13 +815,6 @@ setInterval(() => {
 // ------------------------------------------------------------------------------
 // MÓDULO DE AUTENTICACIÓN CIUDADANA Y PERFIL DE USUARIO
 // ------------------------------------------------------------------------------
-const citizenAuthModal = document.getElementById('citizenAuthModal');
-const citizenProfileModal = document.getElementById('citizenProfileModal');
-const btnUserAvatar = document.getElementById('btnUserAvatar');
-const btnOpenCitizenProfileFromBanner = document.getElementById('btnOpenCitizenProfileFromBanner');
-const btnCloseProfileModal = document.getElementById('btnCloseProfileModal');
-const btnLogoutCitizen = document.getElementById('btnLogoutCitizen');
-
 function getCurrentCitizen() {
     try {
         const stored = localStorage.getItem('sm_citizen_user');
@@ -797,36 +823,6 @@ function getCurrentCitizen() {
         return null;
     }
 }
-
-function openCitizenAuthModal(tab = 'login') {
-    if (citizenAuthModal) {
-        citizenAuthModal.style.display = 'flex';
-        switchCitizenTab(tab);
-    }
-}
-
-function closeCitizenAuthModal() {
-    if (citizenAuthModal) citizenAuthModal.style.display = 'none';
-}
-
-window.switchCitizenTab = function(tab) {
-    const loginTab = document.getElementById('citizenLoginTab');
-    const registerTab = document.getElementById('citizenRegisterTab');
-    const tabBtnLogin = document.getElementById('tabBtnLogin');
-    const tabBtnRegister = document.getElementById('tabBtnRegister');
-
-    if (tab === 'login') {
-        if (loginTab) loginTab.style.display = 'block';
-        if (registerTab) registerTab.style.display = 'none';
-        tabBtnLogin?.classList.add('active');
-        tabBtnRegister?.classList.remove('active');
-    } else {
-        if (loginTab) loginTab.style.display = 'none';
-        if (registerTab) registerTab.style.display = 'block';
-        tabBtnRegister?.classList.add('active');
-        tabBtnLogin?.classList.remove('active');
-    }
-};
 
 function getInitials(name) {
     if (!name) return '👤';
@@ -841,120 +837,38 @@ function checkCitizenAuth() {
     const bannerDetails = document.getElementById('citizenBannerDetails');
     const bannerAvatar = document.getElementById('citizenBannerAvatar');
 
-    if (citizen) {
-        closeCitizenAuthModal();
-        if (btnUserAvatar) {
-            btnUserAvatar.classList.add('logged-in');
-            btnUserAvatar.innerHTML = `<span>${getInitials(citizen.full_name || citizen.first_name)}</span>`;
-            btnUserAvatar.title = `${citizen.full_name} • Cuenta Activa`;
-        }
-
-        if (bannerName) bannerName.textContent = citizen.full_name || `${citizen.first_name} ${citizen.last_name}`;
-        if (bannerDetails) bannerDetails.textContent = `${citizen.phone || 'S/N'} • ${citizen.email}`;
-        if (bannerAvatar) bannerAvatar.textContent = getInitials(citizen.full_name || citizen.first_name);
-    } else {
-        if (btnUserAvatar) {
-            btnUserAvatar.classList.remove('logged-in');
-            btnUserAvatar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
-            btnUserAvatar.title = 'Iniciar Sesión / Registrarse';
-        }
-
-        if (bannerName) bannerName.textContent = 'Acceso Ciudadano Requerido';
-        if (bannerDetails) bannerDetails.textContent = 'Inicia sesión para notificar una problemática';
-        if (bannerAvatar) bannerAvatar.textContent = '🔒';
-
-        // Mostrar el modal de inicio de sesión si no hay sesión activa
-        openCitizenAuthModal('login');
+    if (!citizen) {
+        window.location.replace('/login');
+        return;
     }
+
+    if (btnUserAvatar) {
+        btnUserAvatar.classList.add('logged-in');
+        btnUserAvatar.innerHTML = `<span>${getInitials(citizen.full_name || citizen.first_name)}</span>`;
+        btnUserAvatar.title = `${citizen.full_name || citizen.first_name} • Cuenta Activa`;
+    }
+
+    if (bannerName) bannerName.textContent = citizen.full_name || `${citizen.first_name} ${citizen.last_name}`;
+    if (bannerDetails) bannerDetails.textContent = `${citizen.phone || 'S/N'} • ${citizen.email}`;
+    if (bannerAvatar) bannerAvatar.textContent = getInitials(citizen.full_name || citizen.first_name);
 }
-
-// Envío de Formulario Login Ciudadano
-document.getElementById('formCitizenLogin')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('citLoginEmail')?.value.trim();
-    const password = document.getElementById('citLoginPassword')?.value;
-    const btn = document.getElementById('btnSubmitCitLogin');
-
-    if (!email || !password) {
-        showToast('Ingrese su correo y contraseña', true);
-        return;
-    }
-
-    btn.disabled = true;
-    try {
-        const res = await fetch('/api/auth/citizen/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-            localStorage.setItem('sm_citizen_user', JSON.stringify(data.citizen));
-            if (data.token) localStorage.setItem('sm_citizen_token', data.token);
-            showToast(`¡Bienvenido al portal, ${data.citizen.first_name}!`);
-            checkCitizenAuth();
-        } else {
-            showToast(data.error || 'Credenciales no válidas', true);
-        }
-    } catch (err) {
-        showToast('Error de conexión con el servidor', true);
-    } finally {
-        btn.disabled = false;
-    }
-});
-
-// Envío de Formulario Registro Ciudadano
-document.getElementById('formCitizenRegister')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const first_name = document.getElementById('citRegFirstName')?.value.trim();
-    const last_name = document.getElementById('citRegLastName')?.value.trim();
-    const email = document.getElementById('citRegEmail')?.value.trim();
-    const phone = document.getElementById('citRegPhone')?.value.trim();
-    const password = document.getElementById('citRegPassword')?.value;
-    const btn = document.getElementById('btnSubmitCitReg');
-
-    if (!first_name || !last_name || !email || !phone || !password) {
-        showToast('Todos los campos son requeridos', true);
-        return;
-    }
-
-    btn.disabled = true;
-    try {
-        const res = await fetch('/api/auth/citizen/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ first_name, last_name, email, phone, password })
-        });
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-            localStorage.setItem('sm_citizen_user', JSON.stringify(data.citizen));
-            if (data.token) localStorage.setItem('sm_citizen_token', data.token);
-            showToast('¡Cuenta creada con éxito! Bienvenido al portal');
-            checkCitizenAuth();
-        } else {
-            showToast(data.error || 'Error al crear la cuenta', true);
-        }
-    } catch (err) {
-        showToast('Error de conexión con el servidor', true);
-    } finally {
-        btn.disabled = false;
-    }
-});
 
 // Abrir Drawer / Modal de Perfil Ciudadano
 window.openCitizenProfileDrawer = async function() {
     const citizen = getCurrentCitizen();
     if (!citizen) {
-        openCitizenAuthModal('login');
+        window.location.replace('/login');
         return;
     }
 
-    document.getElementById('citProfileAvatar').textContent = getInitials(citizen.full_name || citizen.first_name);
-    document.getElementById('citProfileName').textContent = citizen.full_name || `${citizen.first_name} ${citizen.last_name}`;
-    document.getElementById('citProfileEmail').textContent = citizen.email;
-    document.getElementById('citProfilePhone').textContent = `📞 ${citizen.phone || 'S/N'}`;
+    const citAvatar = document.getElementById('citProfileAvatar');
+    if (citAvatar) citAvatar.textContent = getInitials(citizen.full_name || citizen.first_name);
+    const citName = document.getElementById('citProfileName');
+    if (citName) citName.textContent = citizen.full_name || `${citizen.first_name} ${citizen.last_name}`;
+    const citEmail = document.getElementById('citProfileEmail');
+    if (citEmail) citEmail.textContent = citizen.email;
+    const citPhone = document.getElementById('citProfilePhone');
+    if (citPhone) citPhone.textContent = `📞 ${citizen.phone || 'S/N'}`;
 
     if (citizenProfileModal) citizenProfileModal.style.display = 'flex';
 
@@ -1034,7 +948,7 @@ btnUserAvatar?.addEventListener('click', () => {
     if (citizen) {
         openCitizenProfileDrawer();
     } else {
-        openCitizenAuthModal('login');
+        window.location.replace('/login');
     }
 });
 
@@ -1047,8 +961,7 @@ btnLogoutCitizen?.addEventListener('click', () => {
     localStorage.removeItem('sm_citizen_user');
     localStorage.removeItem('sm_citizen_token');
     if (citizenProfileModal) citizenProfileModal.style.display = 'none';
-    showToast('Sesión cerrada con éxito');
-    checkCitizenAuth();
+    window.location.replace('/login');
 });
 
 // ------------------------------------------------------------------------------

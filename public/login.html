@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Ciudadano | Santa Marta Reporta</title>
+
+    <!-- Tipografía Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --navy-950: #040d1a;
+            --navy-900: #071e33;
+            --navy-800: #0c2540;
+            --blue-primary: #0284c7;
+            --blue-hover: #0369a1;
+            --blue-light: #e0f2fe;
+            --blue-accent: #38bdf8;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --shadow-card: 0 20px 45px -10px rgba(7, 30, 51, 0.25), 0 10px 20px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #071e33 0%, #0b223c 50%, #040d1a 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            color: var(--text-dark);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Efectos decorativos de fondo */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 480px;
+            height: 480px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(2, 132, 199, 0.25) 0%, rgba(2, 132, 199, 0) 70%);
+            top: -120px;
+            right: -80px;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 520px;
+            height: 520px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(56, 189, 248, 0) 70%);
+            bottom: -150px;
+            left: -100px;
+            pointer-events: none;
+        }
+
+        /* Contenedor Principal */
+        .auth-container {
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Encabezado Distrital */
+        .auth-brand-header {
+            text-align: center;
+            margin-bottom: 1.8rem;
+        }
+
+        .auth-brand-header .crest-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            margin-bottom: 1rem;
+        }
+
+        .auth-brand-header .crest-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .auth-brand-header h1 {
+            color: #ffffff;
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            text-transform: uppercase;
+        }
+
+        .auth-brand-header .district-sub {
+            color: #38bdf8;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-top: 0.2rem;
+        }
+
+        .auth-brand-header .system-name {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
+        }
+
+        /* Tarjeta de Autenticación */
+        .auth-card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: var(--shadow-card);
+            padding: 2rem 2.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+        }
+
+        /* Selector de Pestañas (Tabs) */
+        .auth-tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 1.8rem;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.65rem 0.5rem;
+            font-size: 0.84rem;
+            font-weight: 700;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: var(--blue-primary);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+        }
+
+        /* Formularios */
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: fadeInTab 0.25s ease-out;
+        }
+
+        @keyframes fadeInTab {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 1.1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .input-icon-wrap {
+            position: relative;
+        }
+
+        .input-icon-wrap svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        .styled-input {
+            width: 100%;
+            height: 44px;
+            padding: 0 12px 0 38px;
+            background: #f8fafc;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            font-size: 0.88rem;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .styled-input:focus {
+            background: #ffffff;
+            border-color: var(--blue-primary);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        .styled-input::placeholder {
+            color: #94a3b8;
+        }
+
+        /* Botón de Envío Principal */
+        .btn-submit-auth {
+            width: 100%;
+            height: 46px;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+            transition: all 0.2s ease;
+            margin-top: 0.6rem;
+        }
+
+        .btn-submit-auth:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(2, 132, 199, 0.45);
+        }
+
+        .btn-submit-auth:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Alert Box */
+        .auth-alert {
+            display: none;
+            padding: 0.75rem 0.9rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+        }
+
+        .auth-alert.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+        }
+
+        .auth-alert.success {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #047857;
+        }
+
+        /* Caja de Acceso Rápido / Demo */
+        .demo-box {
+            margin-top: 1.4rem;
+            padding: 0.85rem 1rem;
+            background: #f0f9ff;
+            border: 1px dashed #7dd3fc;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .demo-info {
+            font-size: 0.75rem;
+            color: #0369a1;
+        }
+
+        .demo-info strong {
+            display: block;
+            color: #0c4a6e;
+            font-size: 0.8rem;
+        }
+
+        .btn-quick-fill {
+            background: #0284c7;
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .btn-quick-fill:hover {
+            background: #0369a1;
+        }
+
+        /* Pie de Página de la Tarjeta */
+        .auth-footer {
+            margin-top: 1.6rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid var(--border-light);
+            text-align: center;
+        }
+
+        .auth-footer a {
+            color: var(--navy-900);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.15s ease;
+        }
+
+        .auth-footer a:hover {
+            color: var(--blue-primary);
+        }
+
+        /* Derechos Institucionales */
+        .district-copy {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.74rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 1.6rem 1.4rem;
+            }
+            .form-row-2 {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <!-- Encabezado Institucional -->
+        <header class="auth-brand-header">
+            <div class="crest-wrapper">
+                <img src="images/escudo_santa_marta.png" alt="Escudo de Santa Marta">
+            </div>
+            <h1>Alcaldía Distrital de Santa Marta</h1>
+            <div class="district-sub">Distrito Turístico, Cultural e Histórico</div>
+            <p class="system-name">Sistema Distrital de Incidencias Urbanas • Portal Ciudadano</p>
+        </header>
+
+        <!-- Tarjeta de Autenticación -->
+        <main class="auth-card">
+            <!-- Pestañas Iniciar Sesión / Registro -->
+            <div class="auth-tabs">
+                <button type="button" class="tab-btn active" id="tabBtnLogin" onclick="switchAuthTab('login')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                    Iniciar Sesión
+                </button>
+                <button type="button" class="tab-btn" id="tabBtnRegister" onclick="switchAuthTab('register')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                    Crear Cuenta
+                </button>
+            </div>
+
+            <!-- Caja de Alertas -->
+            <div class="auth-alert" id="authAlert"></div>
+
+            <!-- ================= FORMULARIO 1: INICIAR SESIÓN ================= -->
+            <form id="formCitizenLogin" class="auth-form active" autocomplete="on">
+                <div class="form-group">
+                    <label class="form-label" for="loginEmail">Correo Electrónico *</label>
+                    <div class="input-icon-wrap">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <input type="email" id="loginEmail" class="styled-input" placeholder="tu.correo@ejemplo.com" required autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="loginPassword">Contraseña *</label>
+                    <div class="input-icon-wrap">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" id="loginPassword" class="styled-input" placeholder="Tu contraseña" required autocomplete="current-password">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit-auth" id="btnLoginSubmit">
+                    <span>Ingresar al Portal Ciudadano</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+
+                <!-- Caja de Acceso Rápido / Cuenta Demo -->
+                <div class="demo-box">
+                    <div class="demo-info">
+                        <strong>¿Quieres explorar el portal de inmediato?</strong>
+                        <span>carlos.mendoza@gmail.com</span>
+                    </div>
+                    <button type="button" class="btn-quick-fill" onclick="useDemoAccount()">
+                        Probar Demo &rsaquo;
+                    </button>
+                </div>
+            </form>
+
+            <!-- ================= FORMULARIO 2: REGISTRO CIUDADANO ================= -->
+            <form id="formCitizenRegister" class="auth-form" autocomplete="off">
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label" for="regFirstName">Nombre *</label>
+                        <div class="input-icon-wrap">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <input type="text" id="regFirstName" class="styled-input" placeholder="Ej. Carlos" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="regLastName">Apellido *</label>
+                        <div class="input-icon-wrap">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <input type="text" id="regLastName" class="styled-input" placeholder="Ej. Mendoza" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regPhone">Teléfono de Contacto *</label>
+                    <div class="input-icon-wrap">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        <input type="tel" id="regPhone" class="styled-input" placeholder="Ej. 3001234567" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regEmail">Correo Electrónico *</label>
+                    <div class="input-icon-wrap">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <input type="email" id="regEmail" class="styled-input" placeholder="tu.correo@ejemplo.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regPassword">Crear Contraseña *</label>
+                    <div class="input-icon-wrap">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" id="regPassword" class="styled-input" placeholder="Mínimo 4 caracteres" minlength="4" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit-auth" id="btnRegisterSubmit">
+                    <span>Completar Registro y Entrar</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+            </form>
+
+            <!-- Acceso a Funcionarios y Cuadrillas -->
+            <footer class="auth-footer">
+                <a href="/admin" title="Ir al Portal de Cuadrillas">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span>¿Eres funcionario distrital? <strong>Portal Administrativo &rsaquo;</strong></span>
+                </a>
+            </footer>
+        </main>
+
+        <!-- Pie Institucional -->
+        <p class="district-copy">
+            © 2026 Alcaldía Distrital de Santa Marta • Secretaría de Infraestructura y Servicios Urbanos
+        </p>
+    </div>
+
+    <script>
+        // Si ya está autenticado en este dispositivo, redirigir directo al Portal Ciudadano
+        if (localStorage.getItem('sm_citizen_token') && localStorage.getItem('sm_citizen_user')) {
+            window.location.replace('/');
+        }
+
+        const alertBox = document.getElementById('authAlert');
+
+        function showAlert(msg, isError = false) {
+            alertBox.textContent = (isError ? '⚠️ ' : '✅ ') + msg;
+            alertBox.className = 'auth-alert ' + (isError ? 'error' : 'success');
+            alertBox.style.display = 'block';
+        }
+
+        function hideAlert() {
+            alertBox.style.display = 'none';
+        }
+
+        window.switchAuthTab = function(tab) {
+            hideAlert();
+            const tabLogin = document.getElementById('tabBtnLogin');
+            const tabRegister = document.getElementById('tabBtnRegister');
+            const formLogin = document.getElementById('formCitizenLogin');
+            const formRegister = document.getElementById('formCitizenRegister');
+
+            if (tab === 'login') {
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+                formLogin.classList.add('active');
+                formRegister.classList.remove('active');
+            } else {
+                tabRegister.classList.add('active');
+                tabLogin.classList.remove('active');
+                formRegister.classList.add('active');
+                formLogin.classList.remove('active');
+            }
+        };
+
+        window.useDemoAccount = function() {
+            document.getElementById('loginEmail').value = 'carlos.mendoza@gmail.com';
+            document.getElementById('loginPassword').value = 'santamarta2026';
+            document.getElementById('btnLoginSubmit').click();
+        };
+
+        // Formulario de Inicio de Sesión
+        document.getElementById('formCitizenLogin').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+            const btn = document.getElementById('btnLoginSubmit');
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>Verificando credenciales...</span>';
+
+            try {
+                const res = await fetch('/api/auth/citizen/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    localStorage.setItem('sm_citizen_user', JSON.stringify(data.citizen));
+                    localStorage.setItem('sm_citizen_token', data.token);
+                    showAlert('¡Bienvenido! Redirigiendo al Portal Ciudadano...', false);
+                    setTimeout(() => {
+                        window.location.replace('/');
+                    }, 600);
+                } else {
+                    showAlert(data.error || 'Credenciales incorrectas.', true);
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Ingresar al Portal Ciudadano</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+                }
+            } catch (err) {
+                showAlert('Error al conectar con el servidor distrital.', true);
+                btn.disabled = false;
+                btn.innerHTML = '<span>Ingresar al Portal Ciudadano</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+            }
+        });
+
+        // Formulario de Registro
+        document.getElementById('formCitizenRegister').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+            const btn = document.getElementById('btnRegisterSubmit');
+
+            const first_name = document.getElementById('regFirstName').value.trim();
+            const last_name = document.getElementById('regLastName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>Registrando cuenta...</span>';
+
+            try {
+                const res = await fetch('/api/auth/citizen/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ first_name, last_name, phone, email, password })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    localStorage.setItem('sm_citizen_user', JSON.stringify(data.citizen));
+                    localStorage.setItem('sm_citizen_token', data.token);
+                    showAlert('¡Cuenta creada exitosamente! Redirigiendo...', false);
+                    setTimeout(() => {
+                        window.location.replace('/');
+                    }, 600);
+                } else {
+                    showAlert(data.error || 'No fue posible completar el registro.', true);
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Completar Registro y Entrar</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+                }
+            } catch (err) {
+                showAlert('Error al conectar con el servidor.', true);
+                btn.disabled = false;
+                btn.innerHTML = '<span>Completar Registro y Entrar</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+            }
+        });
+    </script>
+</body>
+</html>

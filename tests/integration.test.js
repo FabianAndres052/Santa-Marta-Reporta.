@@ -39,15 +39,24 @@ async function runTestSuite() {
     }
 
     try {
-        // 1. Portal Ciudadano
+        // 1. Portal Ciudadano y Guardia de Autenticación
         const resHome = await makeRequest({ host: 'localhost', port: 3000, path: '/', method: 'GET' });
         assert('Carga de Portal Ciudadano (HTTP 200)', resHome.statusCode === 200);
-        assert('Modal de autenticación ciudadana presente en index.html', 
+        assert('Guardia de autenticación y Drawer de perfil presente en index.html', 
             typeof resHome.body === 'string' &&
-            resHome.body.includes('citizenAuthModal') &&
-            resHome.body.includes('citRegFirstName') &&
-            resHome.body.includes('citLoginEmail') &&
+            resHome.body.includes('/login') &&
             resHome.body.includes('citizenProfileModal')
+        );
+
+        // 1b. Portal de Acceso / Login Previo Ciudadano
+        const resLoginPage = await makeRequest({ host: 'localhost', port: 3000, path: '/login', method: 'GET' });
+        assert('Carga de Pantalla de Login Ciudadano (HTTP 200)', resLoginPage.statusCode === 200);
+        assert('Formularios de Login y Registro presentes en login.html',
+            typeof resLoginPage.body === 'string' &&
+            resLoginPage.body.includes('formCitizenLogin') &&
+            resLoginPage.body.includes('formCitizenRegister') &&
+            resLoginPage.body.includes('loginEmail') &&
+            resLoginPage.body.includes('regFirstName')
         );
 
         // 2. Portal Administrativo
