@@ -23,13 +23,21 @@ function showToast(message, isError = false) {
     setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 3400);
 }
 
-// Formatear Fecha
+// Formatear Fecha (Zona Horaria Colombia America/Bogota)
 function formatDate(dateString) {
     if (!dateString) return '';
-    const date = new Date(dateString);
+    let iso = String(dateString).trim();
+    if (!iso.endsWith('Z') && !iso.includes('+') && !iso.includes('-05:00')) {
+        iso = iso.replace(' ', 'T') + 'Z';
+    }
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return dateString;
+
     return date.toLocaleDateString('es-CO', { 
+        timeZone: 'America/Bogota',
         year: 'numeric', month: 'short', day: 'numeric',
-        hour: '2-digit', minute: '2-digit'
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
     });
 }
 

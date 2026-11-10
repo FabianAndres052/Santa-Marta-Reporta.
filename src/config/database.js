@@ -35,6 +35,20 @@ async function initDatabase() {
             )
         `);
 
+        // Crear la tabla citizens para el registro y autenticación de ciudadanos
+        await db.exec(`
+            CREATE TABLE IF NOT EXISTS citizens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                first_name TEXT NOT NULL,
+                last_name TEXT NOT NULL,
+                full_name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                phone TEXT NOT NULL,
+                password_hash TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         // Migración dinámica segura: agregar columnas si la tabla ya existía de versiones previas
         const tableInfo = await db.all("PRAGMA table_info(reports)");
         const existingColumns = tableInfo.map(col => col.name);

@@ -69,7 +69,7 @@
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
                 Mapa Distrital
             </a>
-            <div class="user-avatar-circle" title="Cuenta Ciudadana">
+            <div class="user-avatar-circle" id="btnUserAvatar" title="Mi Cuenta Ciudadana" style="cursor:pointer;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
         </nav>
@@ -216,34 +216,16 @@
             </div>
 
             <form id="reportForm">
-                <!-- Sección 1: Datos Obligatorios del Ciudadano -->
-                <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:0.75rem 0.85rem; margin-bottom:1rem;">
-                    <div style="font-size:0.75rem; font-weight:700; color:#0f172a; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        Datos del Solicitante (Requeridos)
-                    </div>
-
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+                <!-- Banner de Ciudadano Autenticado -->
+                <div id="citizenLoggedBanner" style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:0.75rem 0.85rem; margin-bottom:1rem; display:flex; align-items:center; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:34px; height:34px; border-radius:50%; background:#0284c7; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; box-shadow:0 2px 6px rgba(2,132,199,0.3);" id="citizenBannerAvatar">👤</div>
                         <div>
-                            <label class="form-group-label" for="first_name" style="font-size:0.73rem; margin-bottom:3px;">Nombre *</label>
-                            <input type="text" id="first_name" name="first_name" class="styled-text-input" placeholder="Tu nombre" required style="width:100%; padding:0.5rem 0.7rem; border:1px solid var(--border-card); border-radius:6px; font-size:0.82rem; background:#fff;">
-                        </div>
-                        <div>
-                            <label class="form-group-label" for="last_name" style="font-size:0.73rem; margin-bottom:3px;">Apellido *</label>
-                            <input type="text" id="last_name" name="last_name" class="styled-text-input" placeholder="Tu apellido" required style="width:100%; padding:0.5rem 0.7rem; border:1px solid var(--border-card); border-radius:6px; font-size:0.82rem; background:#fff;">
+                            <div style="font-size:0.82rem; font-weight:800; color:#0f172a;" id="citizenBannerName">Ciudadano</div>
+                            <div style="font-size:0.72rem; color:#64748b;" id="citizenBannerDetails">Cargando perfil...</div>
                         </div>
                     </div>
-
-                    <div style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap:8px;">
-                        <div>
-                            <label class="form-group-label" for="citizen_email" style="font-size:0.73rem; margin-bottom:3px;">Correo Electrónico *</label>
-                            <input type="email" id="citizen_email" name="citizen_email" class="styled-text-input" placeholder="correo@ejemplo.com" required style="width:100%; padding:0.5rem 0.7rem; border:1px solid var(--border-card); border-radius:6px; font-size:0.82rem; background:#fff;">
-                        </div>
-                        <div>
-                            <label class="form-group-label" for="citizen_phone" style="font-size:0.73rem; margin-bottom:3px;">Teléfono *</label>
-                            <input type="tel" id="citizen_phone" name="citizen_phone" class="styled-text-input" placeholder="3001234567" required style="width:100%; padding:0.5rem 0.7rem; border:1px solid var(--border-card); border-radius:6px; font-size:0.82rem; background:#fff;">
-                        </div>
-                    </div>
+                    <button type="button" id="btnOpenCitizenProfileFromBanner" style="background:#e0f2fe; border:1px solid #7dd3fc; color:#0369a1; padding:4px 9px; border-radius:6px; font-size:0.73rem; font-weight:700; cursor:pointer;">Mis Reportes</button>
                 </div>
 
                 <!-- Sección 2: Datos de la Incidencia -->
@@ -481,6 +463,119 @@
                 <button type="button" id="btnDownloadCitizenPdf" class="btn-table-action btn-table-pdf" style="width:100%; justify-content:center; padding:0.65rem; font-weight:700;">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     Descargar Comprobante de Radicación (PDF)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================================================
+         MODAL DE ACCESO Y REGISTRO CIUDADANO (LOGIN / REGISTRO)
+         ============================================================================== -->
+    <div id="citizenAuthModal" class="citizen-auth-overlay">
+        <div class="citizen-auth-card">
+            <div class="citizen-auth-header">
+                <img src="images/escudo_santa_marta.png" alt="Escudo de Santa Marta">
+                <h2>Portal Ciudadano</h2>
+                <p>Alcaldía Distrital de Santa Marta • Identificación Requerida</p>
+            </div>
+
+            <div class="citizen-tabs-bar">
+                <button type="button" class="citizen-tab-btn active" id="tabBtnLogin" onclick="switchCitizenTab('login')">Iniciar Sesión</button>
+                <button type="button" class="citizen-tab-btn" id="tabBtnRegister" onclick="switchCitizenTab('register')">Registrarse</button>
+            </div>
+
+            <!-- TAB 1: INICIAR SESIÓN -->
+            <div id="citizenLoginTab" class="citizen-tab-content">
+                <form id="formCitizenLogin" autocomplete="on">
+                    <div class="citizen-input-group">
+                        <label for="citLoginEmail">Correo Electrónico *</label>
+                        <input type="email" id="citLoginEmail" placeholder="tu.correo@ejemplo.com" required autocomplete="email">
+                    </div>
+                    <div class="citizen-input-group">
+                        <label for="citLoginPassword">Contraseña *</label>
+                        <input type="password" id="citLoginPassword" placeholder="Tu contraseña" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn-citizen-primary" id="btnSubmitCitLogin">Ingresar al Portal Ciudadano</button>
+                    <div style="text-align:center; margin-top:1.1rem; font-size:0.8rem; color:#64748b;">
+                        ¿No tienes una cuenta aún? 
+                        <a href="javascript:void(0)" onclick="switchCitizenTab('register')" style="color:#0284c7; font-weight:700; text-decoration:none;">Regístrate aquí</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TAB 2: REGISTRO -->
+            <div id="citizenRegisterTab" class="citizen-tab-content" style="display:none;">
+                <form id="formCitizenRegister" autocomplete="off">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:0.75rem;">
+                        <div class="citizen-input-group" style="margin-bottom:0;">
+                            <label for="citRegFirstName">Nombre *</label>
+                            <input type="text" id="citRegFirstName" placeholder="Ej. Carlos" required>
+                        </div>
+                        <div class="citizen-input-group" style="margin-bottom:0;">
+                            <label for="citRegLastName">Apellido *</label>
+                            <input type="text" id="citRegLastName" placeholder="Ej. Mendoza" required>
+                        </div>
+                    </div>
+                    <div class="citizen-input-group">
+                        <label for="citRegEmail">Correo Electrónico *</label>
+                        <input type="email" id="citRegEmail" placeholder="correo@ejemplo.com" required>
+                    </div>
+                    <div class="citizen-input-group">
+                        <label for="citRegPhone">Teléfono Celular *</label>
+                        <input type="tel" id="citRegPhone" placeholder="3001234567" required>
+                    </div>
+                    <div class="citizen-input-group">
+                        <label for="citRegPassword">Crear Contraseña *</label>
+                        <input type="password" id="citRegPassword" placeholder="Mínimo 4 caracteres" minlength="4" required>
+                    </div>
+                    <button type="submit" class="btn-citizen-primary" id="btnSubmitCitReg">Registrarme e Ingresar</button>
+                    <div style="text-align:center; margin-top:1.1rem; font-size:0.8rem; color:#64748b;">
+                        ¿Ya tienes una cuenta? 
+                        <a href="javascript:void(0)" onclick="switchCitizenTab('login')" style="color:#0284c7; font-weight:700; text-decoration:none;">Inicia sesión aquí</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================================================================
+         MODAL / DRAWER DE PERFIL CIUDADANO ("PERSONITA")
+         ============================================================================== -->
+    <div id="citizenProfileModal" class="citizen-profile-modal">
+        <div class="citizen-profile-box">
+            <div class="citizen-profile-header">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div class="citizen-card-avatar" id="citProfileAvatar">👤</div>
+                    <div>
+                        <h3 id="citProfileName" style="margin:0; font-size:1.05rem; font-weight:800;">Ciudadano</h3>
+                        <div id="citProfileEmail" style="font-size:0.78rem; color:#93c5fd;">correo@...</div>
+                        <div id="citProfilePhone" style="font-size:0.74rem; color:#cbd5e1;">📞 S/N</div>
+                    </div>
+                </div>
+                <button type="button" id="btnCloseProfileModal" style="background:transparent; border:none; color:#cbd5e1; font-size:1.6rem; cursor:pointer; line-height:1;">&times;</button>
+            </div>
+
+            <div class="citizen-profile-body">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:0.75rem; border-bottom:1px solid #e2e8f0;">
+                    <div>
+                        <span style="font-size:0.72rem; color:#64748b; font-weight:700; text-transform:uppercase;">Historial de Reportes</span>
+                        <h4 style="margin:2px 0 0; font-size:0.95rem; color:#0f172a;">Mis Incidencias Radicadas</h4>
+                    </div>
+                    <div style="background:#e0f2fe; color:#0369a1; padding:4px 10px; border-radius:999px; font-weight:800; font-size:0.78rem;" id="citTotalReportsBadge">
+                        0 reportes
+                    </div>
+                </div>
+
+                <div id="citMyReportsList" style="max-height:360px; overflow-y:auto; padding-right:4px;">
+                    <p style="text-align:center; color:#64748b; font-size:0.82rem; padding:2rem 0;">Cargando tus reportes...</p>
+                </div>
+            </div>
+
+            <div style="padding:1rem 1.5rem; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.74rem; color:#64748b;">Santa Marta Reporta • 2026</span>
+                <button type="button" id="btnLogoutCitizen" style="background:#fee2e2; border:1px solid #fca5a5; color:#b91c1c; font-weight:700; font-size:0.8rem; padding:0.5rem 1rem; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Cerrar Sesión
                 </button>
             </div>
         </div>

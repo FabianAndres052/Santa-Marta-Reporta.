@@ -26,23 +26,23 @@ function showToast(message, isError = false) {
     setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 3400);
 }
 
-// Formatear Fecha idéntica a la maqueta (ej. "20 oct 2026, 05:06 a. m.")
+// Formatear Fecha idéntica a la maqueta con soporte estricto de Zona Horaria de Colombia (America/Bogota, UTC-5)
 function formatDateCustom(dateString) {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    
-    let hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const ampm = hours >= 12 ? 'p. m.' : 'a. m.';
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    const formattedHours = String(hours).padStart(2, '0');
+    let iso = String(dateString).trim();
+    // Normalizar timestamp de SQLite a ISO UTC si no incluye zona horaria
+    if (!iso.endsWith('Z') && !iso.includes('+') && !iso.includes('-05:00')) {
+        iso = iso.replace(' ', 'T') + 'Z';
+    }
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return dateString;
 
-    return `${day} ${month} ${year}, ${formattedHours}:${minutes} ${ampm}`;
+    return date.toLocaleDateString('es-CO', { 
+        timeZone: 'America/Bogota',
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
+    });
 }
 
 // Crear Pin Personalizado de Leaflet
@@ -633,51 +633,45 @@ function handleImg(file) {
 }
 
 // ------------------------------------------------------------------------------
-// Envío del Formulario Ciudadano
+// Envío del Formulario Ciudadano (Asociado al Ciudadano Autenticado)
 // ------------------------------------------------------------------------------
 document.getElementById('reportForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
+
+    const citizen = getCurrentCitizen();
+    if (!citizen) {
+        showToast('Debes iniciar sesión para radicar una incidencia', true);
+        openCitizenAuthModal('login');
+        return;
+    }
+
     btn.disabled = true;
 
     try {
         const formData = new FormData(e.target);
-        const firstName = document.getElementById('first_name')?.value.trim() || '';
-        const lastName = document.getElementById('last_name')?.value.trim() || '';
-        const email = document.getElementById('citizen_email')?.value.trim() || '';
-        const phone = document.getElementById('citizen_phone')?.value.trim() || '';
         const categoryVal = document.getElementById('category')?.value || '';
         const descInput = document.getElementById('description')?.value.trim();
         const locInput = document.getElementById('location')?.value.trim();
 
-        if (!firstName || !lastName) {
-            showToast('Por favor ingresa tu nombre y apellido', true);
+        if (!categoryVal) {
+            showToast('Por favor selecciona una categoría', true);
             btn.disabled = false;
             return;
         }
 
-        if (!email) {
-            showToast('Por favor ingresa tu correo electrónico', true);
+        if (!descInput) {
+            showToast('Por favor describe la incidencia', true);
             btn.disabled = false;
             return;
         }
 
-        if (!phone) {
-            showToast('Por favor ingresa tu número de teléfono', true);
-            btn.disabled = false;
-            return;
-        }
-
-        formData.set('citizen_name', `${firstName} ${lastName}`);
-        formData.set('citizen_email', email);
-        formData.set('citizen_phone', phone);
-
-        // Validar y asegurar datos reales
-        if (descInput) {
-            formData.set('description', descInput);
-        } else {
-            formData.set('description', `Incidencia de ${categoryVal} reportada en el sector.`);
-        }
+        // Datos del ciudadano logueado
+        formData.set('first_name', citizen.first_name);
+        formData.set('last_name', citizen.last_name);
+        formData.set('citizen_name', citizen.full_name);
+        formData.set('citizen_email', citizen.email);
+        formData.set('citizen_phone', citizen.phone);
 
         if (locInput) {
             formData.set('location', locInput);
@@ -786,6 +780,278 @@ setInterval(() => {
 }, 6000);
 
 // ------------------------------------------------------------------------------
+// MÓDULO DE AUTENTICACIÓN CIUDADANA Y PERFIL DE USUARIO
+// ------------------------------------------------------------------------------
+const citizenAuthModal = document.getElementById('citizenAuthModal');
+const citizenProfileModal = document.getElementById('citizenProfileModal');
+const btnUserAvatar = document.getElementById('btnUserAvatar');
+const btnOpenCitizenProfileFromBanner = document.getElementById('btnOpenCitizenProfileFromBanner');
+const btnCloseProfileModal = document.getElementById('btnCloseProfileModal');
+const btnLogoutCitizen = document.getElementById('btnLogoutCitizen');
+
+function getCurrentCitizen() {
+    try {
+        const stored = localStorage.getItem('sm_citizen_user');
+        return stored ? JSON.parse(stored) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function openCitizenAuthModal(tab = 'login') {
+    if (citizenAuthModal) {
+        citizenAuthModal.style.display = 'flex';
+        switchCitizenTab(tab);
+    }
+}
+
+function closeCitizenAuthModal() {
+    if (citizenAuthModal) citizenAuthModal.style.display = 'none';
+}
+
+window.switchCitizenTab = function(tab) {
+    const loginTab = document.getElementById('citizenLoginTab');
+    const registerTab = document.getElementById('citizenRegisterTab');
+    const tabBtnLogin = document.getElementById('tabBtnLogin');
+    const tabBtnRegister = document.getElementById('tabBtnRegister');
+
+    if (tab === 'login') {
+        if (loginTab) loginTab.style.display = 'block';
+        if (registerTab) registerTab.style.display = 'none';
+        tabBtnLogin?.classList.add('active');
+        tabBtnRegister?.classList.remove('active');
+    } else {
+        if (loginTab) loginTab.style.display = 'none';
+        if (registerTab) registerTab.style.display = 'block';
+        tabBtnRegister?.classList.add('active');
+        tabBtnLogin?.classList.remove('active');
+    }
+};
+
+function getInitials(name) {
+    if (!name) return '👤';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+}
+
+function checkCitizenAuth() {
+    const citizen = getCurrentCitizen();
+    const bannerName = document.getElementById('citizenBannerName');
+    const bannerDetails = document.getElementById('citizenBannerDetails');
+    const bannerAvatar = document.getElementById('citizenBannerAvatar');
+
+    if (citizen) {
+        closeCitizenAuthModal();
+        if (btnUserAvatar) {
+            btnUserAvatar.classList.add('logged-in');
+            btnUserAvatar.innerHTML = `<span>${getInitials(citizen.full_name || citizen.first_name)}</span>`;
+            btnUserAvatar.title = `${citizen.full_name} • Cuenta Activa`;
+        }
+
+        if (bannerName) bannerName.textContent = citizen.full_name || `${citizen.first_name} ${citizen.last_name}`;
+        if (bannerDetails) bannerDetails.textContent = `${citizen.phone || 'S/N'} • ${citizen.email}`;
+        if (bannerAvatar) bannerAvatar.textContent = getInitials(citizen.full_name || citizen.first_name);
+    } else {
+        if (btnUserAvatar) {
+            btnUserAvatar.classList.remove('logged-in');
+            btnUserAvatar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+            btnUserAvatar.title = 'Iniciar Sesión / Registrarse';
+        }
+
+        if (bannerName) bannerName.textContent = 'Acceso Ciudadano Requerido';
+        if (bannerDetails) bannerDetails.textContent = 'Inicia sesión para notificar una problemática';
+        if (bannerAvatar) bannerAvatar.textContent = '🔒';
+
+        // Mostrar el modal de inicio de sesión si no hay sesión activa
+        openCitizenAuthModal('login');
+    }
+}
+
+// Envío de Formulario Login Ciudadano
+document.getElementById('formCitizenLogin')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('citLoginEmail')?.value.trim();
+    const password = document.getElementById('citLoginPassword')?.value;
+    const btn = document.getElementById('btnSubmitCitLogin');
+
+    if (!email || !password) {
+        showToast('Ingrese su correo y contraseña', true);
+        return;
+    }
+
+    btn.disabled = true;
+    try {
+        const res = await fetch('/api/auth/citizen/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+            localStorage.setItem('sm_citizen_user', JSON.stringify(data.citizen));
+            if (data.token) localStorage.setItem('sm_citizen_token', data.token);
+            showToast(`¡Bienvenido al portal, ${data.citizen.first_name}!`);
+            checkCitizenAuth();
+        } else {
+            showToast(data.error || 'Credenciales no válidas', true);
+        }
+    } catch (err) {
+        showToast('Error de conexión con el servidor', true);
+    } finally {
+        btn.disabled = false;
+    }
+});
+
+// Envío de Formulario Registro Ciudadano
+document.getElementById('formCitizenRegister')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const first_name = document.getElementById('citRegFirstName')?.value.trim();
+    const last_name = document.getElementById('citRegLastName')?.value.trim();
+    const email = document.getElementById('citRegEmail')?.value.trim();
+    const phone = document.getElementById('citRegPhone')?.value.trim();
+    const password = document.getElementById('citRegPassword')?.value;
+    const btn = document.getElementById('btnSubmitCitReg');
+
+    if (!first_name || !last_name || !email || !phone || !password) {
+        showToast('Todos los campos son requeridos', true);
+        return;
+    }
+
+    btn.disabled = true;
+    try {
+        const res = await fetch('/api/auth/citizen/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ first_name, last_name, email, phone, password })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+            localStorage.setItem('sm_citizen_user', JSON.stringify(data.citizen));
+            if (data.token) localStorage.setItem('sm_citizen_token', data.token);
+            showToast('¡Cuenta creada con éxito! Bienvenido al portal');
+            checkCitizenAuth();
+        } else {
+            showToast(data.error || 'Error al crear la cuenta', true);
+        }
+    } catch (err) {
+        showToast('Error de conexión con el servidor', true);
+    } finally {
+        btn.disabled = false;
+    }
+});
+
+// Abrir Drawer / Modal de Perfil Ciudadano
+window.openCitizenProfileDrawer = async function() {
+    const citizen = getCurrentCitizen();
+    if (!citizen) {
+        openCitizenAuthModal('login');
+        return;
+    }
+
+    document.getElementById('citProfileAvatar').textContent = getInitials(citizen.full_name || citizen.first_name);
+    document.getElementById('citProfileName').textContent = citizen.full_name || `${citizen.first_name} ${citizen.last_name}`;
+    document.getElementById('citProfileEmail').textContent = citizen.email;
+    document.getElementById('citProfilePhone').textContent = `📞 ${citizen.phone || 'S/N'}`;
+
+    if (citizenProfileModal) citizenProfileModal.style.display = 'flex';
+
+    await loadCitizenMyReports(citizen.email);
+};
+
+async function loadCitizenMyReports(email) {
+    const container = document.getElementById('citMyReportsList');
+    const badge = document.getElementById('citTotalReportsBadge');
+    if (!container) return;
+
+    try {
+        const res = await fetch(`/api/reports/citizen/${encodeURIComponent(email)}`);
+        const reports = await res.json();
+
+        if (!Array.isArray(reports) || reports.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:2rem 1rem; color:#64748b;">
+                    <div style="font-size:2rem; margin-bottom:6px;">📋</div>
+                    <strong style="color:#0f172a; font-size:0.9rem;">Aún no tienes reportes radicados</strong>
+                    <p style="font-size:0.78rem; margin-top:4px;">Utiliza el formulario del panel izquierdo para radicar una incidencia en tu barrio.</p>
+                </div>
+            `;
+            if (badge) badge.textContent = '0 reportes';
+            return;
+        }
+
+        if (badge) badge.textContent = `${reports.length} reporte${reports.length === 1 ? '' : 's'}`;
+
+        container.innerHTML = reports.map(r => {
+            let statusBadge = '<span style="background:#fef3c7; color:#d97706; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.72rem;">🟡 Pendiente</span>';
+            if (r.status === 'En proceso') {
+                statusBadge = '<span style="background:#e0f2fe; color:#2563eb; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.72rem;">🔵 En proceso</span>';
+            } else if (r.status === 'Resuelto') {
+                statusBadge = '<span style="background:#d1fae5; color:#059669; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.72rem;">🟢 Resuelto</span>';
+            }
+
+            return `
+                <div class="citizen-report-item">
+                    <div style="flex:1;">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                            <span style="font-family:'JetBrains Mono', monospace; font-size:0.8rem; font-weight:800; color:#0284c7;">${r.radicado}</span>
+                            ${statusBadge}
+                        </div>
+                        <div style="font-weight:700; font-size:0.84rem; color:#0f172a;">${r.category}</div>
+                        <div style="font-size:0.75rem; color:#64748b;">📍 ${r.location}</div>
+                        <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">🕒 ${formatDateCustom(r.created_at)}</div>
+                    </div>
+                    <div style="margin-left:12px;">
+                        <button type="button" onclick="downloadCitizenVoucher(${r.id})" style="background:#f0f9ff; border:1px solid #bae6fd; color:#0369a1; padding:0.4rem 0.7rem; border-radius:6px; font-size:0.74rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            PDF
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (e) {
+        container.innerHTML = '<p style="color:red; text-align:center; padding:1rem;">Error al cargar tus incidencias.</p>';
+    }
+}
+
+window.downloadCitizenVoucher = async function(reportId) {
+    try {
+        const res = await fetch(`${API_REPORTS_URL}/${reportId}`);
+        if (!res.ok) throw new Error('No se encontró el reporte');
+        const report = await res.json();
+        currentModalReport = report;
+        document.getElementById('btnDownloadCitizenPdf')?.click();
+    } catch (e) {
+        showToast('Error al descargar el PDF', true);
+    }
+};
+
+btnUserAvatar?.addEventListener('click', () => {
+    const citizen = getCurrentCitizen();
+    if (citizen) {
+        openCitizenProfileDrawer();
+    } else {
+        openCitizenAuthModal('login');
+    }
+});
+
+btnOpenCitizenProfileFromBanner?.addEventListener('click', openCitizenProfileDrawer);
+btnCloseProfileModal?.addEventListener('click', () => {
+    if (citizenProfileModal) citizenProfileModal.style.display = 'none';
+});
+
+btnLogoutCitizen?.addEventListener('click', () => {
+    localStorage.removeItem('sm_citizen_user');
+    localStorage.removeItem('sm_citizen_token');
+    if (citizenProfileModal) citizenProfileModal.style.display = 'none';
+    showToast('Sesión cerrada con éxito');
+    checkCitizenAuth();
+});
+
+// ------------------------------------------------------------------------------
 // Inicialización
 // ------------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
@@ -793,4 +1059,5 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchReports();
     initInfiniteHeroCarousel();
     initBrandHeaderNavigation();
+    checkCitizenAuth();
 });

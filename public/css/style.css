@@ -1617,3 +1617,212 @@ body {
     border-color: #86efac;
     cursor: default;
 }
+
+/* ==============================================================================
+   MÓDULO DE AUTENTICACIÓN CIUDADANA Y PERFIL DE USUARIO
+   ============================================================================== */
+.citizen-auth-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 30, 51, 0.85);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1rem;
+    animation: fadeInModal 0.25s ease-out;
+}
+
+.citizen-auth-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 460px;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.citizen-auth-header {
+    background: linear-gradient(135deg, #071e33 0%, #0c385b 100%);
+    color: #ffffff;
+    padding: 1.75rem 1.5rem 1.25rem;
+    text-align: center;
+    position: relative;
+}
+
+.citizen-auth-header img {
+    height: 48px;
+    width: auto;
+    margin-bottom: 0.6rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.citizen-auth-header h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.citizen-auth-header p {
+    font-size: 0.8rem;
+    color: #93c5fd;
+    margin-top: 4px;
+}
+
+.citizen-tabs-bar {
+    display: flex;
+    background: #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.citizen-tab-btn {
+    flex: 1;
+    padding: 0.75rem;
+    background: transparent;
+    border: none;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+}
+
+.citizen-tab-btn.active {
+    color: #0284c7;
+    background: #ffffff;
+    border-bottom: 2px solid #0284c7;
+}
+
+.citizen-tab-content {
+    padding: 1.5rem;
+}
+
+.citizen-input-group {
+    margin-bottom: 1rem;
+}
+
+.citizen-input-group label {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.35rem;
+}
+
+.citizen-input-group input {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.citizen-input-group input:focus {
+    outline: none;
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.btn-citizen-primary {
+    width: 100%;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-citizen-primary:hover {
+    box-shadow: 0 6px 15px rgba(2, 132, 199, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Modal / Drawer de Perfil Ciudadano */
+.citizen-profile-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    padding: 1rem;
+}
+
+.citizen-profile-box {
+    background: #ffffff;
+    width: 100%;
+    max-width: 580px;
+    max-height: 90vh;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.citizen-profile-header {
+    background: #071e33;
+    color: #ffffff;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #0284c7;
+}
+
+.citizen-card-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #0284c7;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 800;
+    box-shadow: 0 4px 10px rgba(2,132,199,0.4);
+}
+
+.citizen-profile-body {
+    padding: 1.25rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.citizen-report-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.citizen-report-item:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.user-avatar-circle.logged-in {
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.82rem;
+    border: 2px solid #bae6fd;
+}

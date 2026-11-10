@@ -42,12 +42,12 @@ async function runTestSuite() {
         // 1. Portal Ciudadano
         const resHome = await makeRequest({ host: 'localhost', port: 3000, path: '/', method: 'GET' });
         assert('Carga de Portal Ciudadano (HTTP 200)', resHome.statusCode === 200);
-        assert('Campos de registro presentes en index.html', 
+        assert('Modal de autenticación ciudadana presente en index.html', 
             typeof resHome.body === 'string' &&
-            resHome.body.includes('first_name') &&
-            resHome.body.includes('last_name') &&
-            resHome.body.includes('citizen_email') &&
-            resHome.body.includes('citizen_phone')
+            resHome.body.includes('citizenAuthModal') &&
+            resHome.body.includes('citRegFirstName') &&
+            resHome.body.includes('citLoginEmail') &&
+            resHome.body.includes('citizenProfileModal')
         );
 
         // 2. Portal Administrativo
@@ -222,6 +222,56 @@ async function runTestSuite() {
             resList.body.citizen_email === 'carlos.mendoza@gmail.com' &&
             resList.body.citizen_phone === '3009876543'
         );
+
+        // 12. Registro y Login de Ciudadano (Portal Ciudadano)
+        const uniqueCitEmail = `test.ciudadano.${Date.now()}@gmail.com`;
+        const citRegPayload = JSON.stringify({
+            first_name: 'Ana',
+            last_name: 'Paredes',
+            email: uniqueCitEmail,
+            phone: '3157778899',
+            password: 'claveSegura2026'
+        });
+
+        const resCitReg = await makeRequest({
+            host: 'localhost',
+            port: 3000,
+            path: '/api/auth/citizen/register',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(citRegPayload)
+            }
+        }, citRegPayload);
+
+        assert('Registro exitoso de nuevo ciudadano (HTTP 201)', resCitReg.statusCode === 201 && resCitReg.body.success === true);
+
+        const citLoginPayload = JSON.stringify({
+            email: uniqueCitEmail,
+            password: 'claveSegura2026'
+        });
+
+        const resCitLogin = await makeRequest({
+            host: 'localhost',
+            port: 3000,
+            path: '/api/auth/citizen/login',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(citLoginPayload)
+            }
+        }, citLoginPayload);
+
+        assert('Inicio de sesión de ciudadano exitoso (HTTP 200)', resCitLogin.statusCode === 200 && resCitLogin.body.citizen.first_name === 'Ana');
+
+        // 13. Consultar reportes del ciudadano
+        const resCitReports = await makeRequest({
+            host: 'localhost',
+            port: 3000,
+            path: `/api/reports/citizen/${encodeURIComponent('carlos.mendoza@gmail.com')}`,
+            method: 'GET'
+        });
+        assert('Consulta de "Mis Reportes" por correo de ciudadano (HTTP 200)', resCitReports.statusCode === 200 && Array.isArray(resCitReports.body));
 
     } catch (e) {
         console.error('Error durante la ejecución del test suite:', e);

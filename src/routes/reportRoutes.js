@@ -15,6 +15,9 @@ router.post('/', reportController.upload.single('image'), reportController.creat
 // Ruta para listar reportes con filtros
 router.get('/', reportController.getAllReports);
 
+// Ruta para reportes de un ciudadano específico
+router.get('/citizen/:email', reportController.getCitizenReports);
+
 // Ruta para obtener reporte por ID
 router.get('/:id', reportController.getReportById);
 

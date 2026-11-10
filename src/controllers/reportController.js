@@ -181,6 +181,26 @@ const deleteReport = async (req, res) => {
     }
 };
 
+// Controlador para obtener reportes de un ciudadano específico por correo
+const getCitizenReports = async (req, res) => {
+    try {
+        const { email } = req.params;
+        if (!email) {
+            return res.status(400).json({ error: 'Correo requerido' });
+        }
+        const { getDb } = require('../config/database');
+        const db = await getDb();
+        const reports = await db.all(
+            'SELECT * FROM reports WHERE LOWER(citizen_email) = ? ORDER BY id DESC',
+            [email.trim().toLowerCase()]
+        );
+        res.json(reports);
+    } catch (error) {
+        console.error('Error al obtener reportes del ciudadano:', error);
+        res.status(500).json({ error: 'Error al consultar reportes del ciudadano' });
+    }
+};
+
 // Controlador para obtener estadísticas y métricas del Dashboard
 const getStats = async (req, res) => {
     try {
@@ -201,5 +221,6 @@ module.exports = {
     voteReport,
     updateAdminNotes,
     deleteReport,
-    getStats
+    getStats,
+    getCitizenReports
 };
