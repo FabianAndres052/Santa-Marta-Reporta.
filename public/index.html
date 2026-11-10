@@ -14,6 +14,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
+    <!-- Librerías de Generación PDF Oficial (Soporte Offline y LAN) -->
+    <script src="js/vendor/jspdf.umd.min.js"></script>
+    <script src="js/vendor/jspdf-autotable.min.js"></script>
+    
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -207,14 +211,45 @@
                 <div class="circle-plus-btn">+</div>
                 <div class="intake-header-text">
                     <h3>Radicar Nueva Incidencia</h3>
-                    <p>Ubica el punto en el mapa para autorrellenar la dirección exacta.</p>
+                    <p>Notifica problemáticas urbanas georreferenciadas en Santa Marta.</p>
                 </div>
             </div>
 
             <form id="reportForm">
-                <div class="form-group">
-                    <label class="form-group-label" for="category">Tipo de Problemática</label>
-                    <div class="styled-select-wrapper">
+                <!-- Sección 1: Datos Obligatorios del Ciudadano -->
+                <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:0.75rem 0.85rem; margin-bottom:1rem;">
+                    <div style="font-size:0.75rem; font-weight:700; color:#0f172a; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Datos del Solicitante (Requeridos)
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+                        <div>
+                            <label class="form-group-label" for="first_name" style="font-size:0.73rem; margin-bottom:3px;">Nombre *</label>
+                            <input type="text" id="first_name" name="first_name" class="styled-text-input" placeholder="Tu nombre" required style="width:100%; padding:0.5rem 0.7rem; border:1px solid var(--border-card); border-radius:6px; font-size:0.82rem; background:#fff;">
+                        </div>
+                        <div>
+                            <label class="form-group-label" for="last_name" style="font-size:0.73rem; margin-bottom:3px;">Apellido *</label>
+                            <input type="text" id="last_name" name="last_name" class="styled-text-input" placeholder="Tu apellido" required style="width:100%; padding:0.5rem 0.7rem; border:1px solid var(--border-card); border-radius:6px; font-size:0.82rem; background:#fff;">
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap:8px;">
+                        <div>
+                            <label class="form-group-label" for="citizen_email" style="font-size:0.73rem; margin-bottom:3px;">Correo Electrónico *</label>
+                            <input type="email" id="citizen_email" name="citizen_email" class="styled-text-input" placeholder="correo@ejemplo.com" required style="width:100%; padding:0.5rem 0.7rem; border:1px solid var(--border-card); border-radius:6px; font-size:0.82rem; background:#fff;">
+                        </div>
+                        <div>
+                            <label class="form-group-label" for="citizen_phone" style="font-size:0.73rem; margin-bottom:3px;">Teléfono *</label>
+                            <input type="tel" id="citizen_phone" name="citizen_phone" class="styled-text-input" placeholder="3001234567" required style="width:100%; padding:0.5rem 0.7rem; border:1px solid var(--border-card); border-radius:6px; font-size:0.82rem; background:#fff;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 2: Datos de la Incidencia -->
+                <div class="form-group" style="margin-bottom:0.85rem;">
+                    <label class="form-group-label" for="category">Tipo de Problemática *</label>
+                    <div class="styled-select-wrapper" style="margin-bottom:0;">
                         <select id="category" name="category" class="styled-select-input" required>
                             <option value="">⊞ Seleccione una categoría...</option>
                             <option value="Malla Vial y Pavimentación">Malla Vial y Pavimentación</option>
@@ -228,8 +263,18 @@
                     </div>
                 </div>
 
-                <!-- Campos ocultos de soporte de georreferenciación -->
-                <input type="hidden" id="location" name="location" value="Centro Histórico, Santa Marta">
+                <div class="form-group" style="margin-bottom:0.85rem;">
+                    <label class="form-group-label" for="location">Ubicación o Barrio *</label>
+                    <input type="text" id="location" name="location" class="styled-text-input" placeholder="Ej. Calle 22 con Carrera 3ra, Centro Histórico" value="Centro Histórico, Santa Marta" required style="width:100%; padding:0.6rem 0.8rem; border:1px solid var(--border-card); border-radius:var(--radius-sm); font-size:0.84rem; background:#f8fafc;">
+                    <small style="font-size:0.71rem; color:var(--text-muted); display:block; margin-top:3px;">📍 Haz clic en el mapa para fijar el punto exacto.</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom:0.85rem;">
+                    <label class="form-group-label" for="description">Descripción Detallada *</label>
+                    <textarea id="description" name="description" rows="2" class="styled-text-input" placeholder="Describe la anomalía o daño observado..." required style="width:100%; padding:0.6rem 0.8rem; border:1px solid var(--border-card); border-radius:var(--radius-sm); font-size:0.84rem; background:#f8fafc; resize:vertical; font-family:inherit;"></textarea>
+                </div>
+
+                <!-- Coordenadas georreferenciadas -->
                 <input type="hidden" id="latitude" name="latitude" value="11.24079">
                 <input type="hidden" id="longitude" name="longitude" value="-74.19904">
 
@@ -366,8 +411,9 @@
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
                     Medio Ambiente
                 </a>
-                <a href="admin.html" class="footer-link-item" style="color:#64748b; font-size:0.72rem;">
-                    Portal Admin
+                <a href="/admin" class="footer-link-item" style="color:#94a3b8; font-size:0.75rem;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Acceso a Funcionarios y Cuadrillas 🔒
                 </a>
             </div>
         </div>
@@ -384,6 +430,27 @@
                 <button type="button" id="btnCloseModal" style="border:none; background:transparent; font-size:1.4rem; cursor:pointer; color:var(--text-muted);">&times;</button>
             </div>
             <div class="modal-sheet-body">
+                
+                <!-- Trazabilidad Visual (Línea de Vida: Reduce Lectura) -->
+                <div class="visual-stepper-box">
+                    <div class="visual-stepper-title">Trazabilidad del Reporte en Vivo</div>
+                    <div class="stepper-steps-wrapper">
+                        <div class="stepper-line"><div class="stepper-line-fill" id="modalStepperLine"></div></div>
+                        <div class="stepper-step completed" id="stepNode1">
+                            <div class="stepper-circle">✓</div>
+                            <div class="stepper-label">1. Radicado</div>
+                        </div>
+                        <div class="stepper-step" id="stepNode2">
+                            <div class="stepper-circle" id="stepCircle2">2</div>
+                            <div class="stepper-label">2. Cuadrilla</div>
+                        </div>
+                        <div class="stepper-step" id="stepNode3">
+                            <div class="stepper-circle" id="stepCircle3">3</div>
+                            <div class="stepper-label">3. Resuelto</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
                     <div>
                         <strong id="modalCategory" style="font-size:0.95rem; color:var(--text-dark);"></strong>
@@ -403,6 +470,18 @@
                 </div>
 
                 <div id="modalImageContainer"></div>
+
+                <!-- Botón de Apoyo Comunitario ("Me afecta") -->
+                <button type="button" id="btnVoteModal" class="btn-vote-action">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                    <span>Me afecta este problema (<strong id="modalVotesCount">0</strong> apoyos)</span>
+                </button>
+
+                <!-- Botón de Descarga de Comprobante PDF Oficial -->
+                <button type="button" id="btnDownloadCitizenPdf" class="btn-table-action btn-table-pdf" style="width:100%; justify-content:center; padding:0.65rem; font-weight:700;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Descargar Comprobante de Radicación (PDF)
+                </button>
             </div>
         </div>
     </div>

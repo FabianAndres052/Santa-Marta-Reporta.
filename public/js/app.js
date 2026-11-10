@@ -1,5 +1,5 @@
 // ==============================================================================
-// Lógica Frontend: Santa Marta Reporta (Réplica Exacta)
+// Lógica Frontend: Santa Marta Reporta (Portal Ciudadano)
 // ==============================================================================
 
 const API_REPORTS_URL = '/api/reports';
@@ -11,6 +11,7 @@ let activeCategory = 'Todas';
 let activeStatus = 'Todos';
 let searchDebounceTimeout = null;
 let geocodeDebounceTimeout = null;
+let currentModalReport = null;
 
 // Coordenadas centrales de la Bahía y Centro de Santa Marta
 const SANTA_MARTA_CENTER = [11.238, -74.205];
@@ -18,6 +19,7 @@ const SANTA_MARTA_CENTER = [11.238, -74.205];
 // Notificación Flotante (Toast)
 function showToast(message, isError = false) {
     const toast = document.getElementById('toast');
+    if (!toast) return;
     toast.textContent = (isError ? '⚠️ ' : '✅ ') + message;
     toast.style.background = isError ? '#dc2626' : '#0a2942';
     toast.className = 'show';
@@ -43,7 +45,7 @@ function formatDateCustom(dateString) {
     return `${day} ${month} ${year}, ${formattedHours}:${minutes} ${ampm}`;
 }
 
-// Crear Pin Personalizado de Leaflet Idéntico a la Maqueta
+// Crear Pin Personalizado de Leaflet
 function createCustomPin(status) {
     let bg = '#f59e0b'; // Amber (Pendiente)
     let innerHtml = '<span style="font-weight:900; font-size:13px; color:white; font-family:sans-serif;">!</span>';
@@ -122,7 +124,7 @@ function initMap() {
     if (santaMartaMap) return;
 
     santaMartaMap = L.map('santaMartaMainMap', {
-        zoomControl: false // Usamos controles personalizados
+        zoomControl: false
     }).setView(SANTA_MARTA_CENTER, 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -133,8 +135,10 @@ function initMap() {
 
     // Clic en el mapa para radicar incidencia en ese punto
     santaMartaMap.on('click', (e) => {
-        document.getElementById('latitude').value = e.latlng.lat.toFixed(6);
-        document.getElementById('longitude').value = e.latlng.lng.toFixed(6);
+        const latInput = document.getElementById('latitude');
+        const lngInput = document.getElementById('longitude');
+        if (latInput) latInput.value = e.latlng.lat.toFixed(6);
+        if (lngInput) lngInput.value = e.latlng.lng.toFixed(6);
         reverseGeocode(e.latlng.lat, e.latlng.lng);
 
         // Marcador temporal de selección
@@ -149,51 +153,66 @@ function initMap() {
     document.getElementById('btnZoomOut')?.addEventListener('click', () => santaMartaMap.zoomOut());
     document.getElementById('btnGpsLocate')?.addEventListener('click', () => {
         if (!navigator.geolocation) {
-            showToast('Navegador sin soporte de GPS', true);
+            showToast('Tu navegador no soporta geolocalización', true);
             return;
         }
+        showToast('Obteniendo tu ubicación GPS...');
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
-                santaMartaMap.setView([lat, lng], 15);
                 document.getElementById('latitude').value = lat.toFixed(6);
                 document.getElementById('longitude').value = lng.toFixed(6);
+                santaMartaMap.setView([lat, lng], 16);
                 reverseGeocode(lat, lng);
+                L.popup()
+                    .setLatLng([lat, lng])
+                    .setContent('<strong style="font-size:12px; color:#059669;">🎯 Tu ubicación actual</strong>')
+                    .openOn(santaMartaMap);
             },
-            () => showToast('No se pudo acceder a tu ubicación', true),
-            { enableHighAccuracy: true }
+            () => showToast('No se pudo acceder a tu ubicación GPS', true),
+            { timeout: 7000 }
         );
+    });
+
+    // Pestañas Cuadrícula / Mapa
+    const btnTabGrid = document.getElementById('btnTabGrid');
+    const btnTabMap = document.getElementById('btnTabMap');
+    btnTabGrid?.addEventListener('click', () => {
+        btnTabGrid.classList.add('active');
+        btnTabMap?.classList.remove('active');
+        document.getElementById('recentReportsSection')?.scrollIntoView({ behavior: 'smooth' });
+    });
+    btnTabMap?.addEventListener('click', () => {
+        btnTabMap.classList.add('active');
+        btnTabGrid?.classList.remove('active');
+        document.getElementById('mapCanvasSection')?.scrollIntoView({ behavior: 'smooth' });
     });
 }
 
 // ------------------------------------------------------------------------------
-// Renderizar Marcadores en el Mapa
+// Actualizar Marcadores en el Mapa
 // ------------------------------------------------------------------------------
 function updateMapMarkers(reports) {
     if (!santaMartaMap || !markersLayerGroup) return;
-
     markersLayerGroup.clearLayers();
 
     reports.forEach(report => {
-        const lat = report.latitude || 11.238;
-        const lng = report.longitude || -74.205;
-        const status = report.status || 'Pendiente';
+        const lat = parseFloat(report.latitude) || 11.24079;
+        const lng = parseFloat(report.longitude) || -74.19904;
 
-        const customPin = createCustomPin(status);
-        const marker = L.marker([lat, lng], { icon: customPin });
+        const pinIcon = createCustomPin(report.status);
+        const marker = L.marker([lat, lng], { icon: pinIcon });
 
+        const radCode = report.radicado || `SMR-2026-${String(report.id).padStart(4, '0')}`;
         const popupHtml = `
-            <div style="font-family:'Plus Jakarta Sans', sans-serif; max-width:220px;">
-                ${report.image_url ? `<img src="${report.image_url}" style="width:100%; height:95px; object-fit:cover; border-radius:4px; margin-bottom:5px;">` : ''}
-                <strong style="color:#0c385b; font-size:12px; display:block;">${report.category}</strong>
-                <p style="margin:2px 0; font-size:11px; font-weight:600; color:#0284c7;">📍 ${report.location}</p>
-                <p style="margin:2px 0 6px; font-size:11px; color:#475569; line-height:1.35;">${report.description}</p>
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:10px; font-weight:700; color:#0c385b;">${report.status}</span>
-                    <button type="button" onclick="openReportModal(${report.id})" style="background:#0c385b; color:white; border:none; padding:3px 7px; border-radius:3px; font-size:10px; cursor:pointer;">
-                        Ver Detalle
-                    </button>
+            <div style="font-family:'Plus Jakarta Sans', sans-serif; font-size:12px; min-width:180px;">
+                <div style="font-weight:700; color:#071e33; font-size:13px; margin-bottom:2px;">${report.category}</div>
+                <div style="color:#0284c7; font-size:11px; font-weight:600; margin-bottom:4px;">${report.location}</div>
+                <p style="color:#475569; font-size:11px; margin-bottom:6px; line-height:1.3;">${report.description}</p>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #e2e8f0; padding-top:4px;">
+                    <span style="font-size:10px; font-weight:700; color:#64748b;">${radCode}</span>
+                    <button type="button" onclick="openReportModal(${report.id})" style="background:#0284c7; color:white; border:none; border-radius:4px; font-size:10px; font-weight:700; padding:3px 8px; cursor:pointer;">Ver Detalle</button>
                 </div>
             </div>
         `;
@@ -222,9 +241,9 @@ async function fetchStats() {
 }
 
 // ------------------------------------------------------------------------------
-// Cargar Reportes
+// Cargar Reportes (Con sincronización en tiempo real)
 // ------------------------------------------------------------------------------
-async function fetchReports() {
+async function fetchReports(isSilent = false) {
     try {
         const searchVal = document.getElementById('searchInput')?.value || '';
         const params = new URLSearchParams();
@@ -238,6 +257,22 @@ async function fetchReports() {
         renderRecentReports(currentReports);
         updateMapMarkers(currentReports);
         fetchStats();
+
+        // Si el modal está abierto, sincronizar su información en vivo
+        if (currentModalReport && trackingModal.style.display === 'flex') {
+            const updated = currentReports.find(x => x.id === currentModalReport.id);
+            if (updated) {
+                currentModalReport = updated;
+                updateVisualStepper(updated.status);
+                const votesEl = document.getElementById('modalVotesCount');
+                if (votesEl) votesEl.textContent = updated.votes || 0;
+                const noteBox = document.getElementById('modalAdminNoteContainer');
+                if (updated.admin_notes && noteBox) {
+                    noteBox.style.display = 'block';
+                    document.getElementById('modalAdminNote').textContent = updated.admin_notes;
+                }
+            }
+        }
     } catch (e) {
         console.error('Error fetch reports:', e);
     }
@@ -272,7 +307,6 @@ function renderRecentReports(reports) {
             iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
         }
 
-        // Título estilizado amigable
         let displayTitle = r.category;
         if (r.category.includes('Malla Vial')) displayTitle = 'Hueco en la vía';
         else if (r.category.includes('Alumbrado')) displayTitle = 'Falla en alumbrado público';
@@ -292,9 +326,15 @@ function renderRecentReports(reports) {
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                             ${formatDateCustom(r.created_at)}
                         </div>
-                        <span class="badge-pill-status ${badgeClass}">
-                            <span style="font-size:8px;">●</span> ${r.status}
-                        </span>
+                        <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
+                            <span class="badge-pill-status ${badgeClass}">
+                                <span style="font-size:8px;">●</span> ${r.status}
+                            </span>
+                            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:600; display:inline-flex; align-items:center; gap:2px;">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                                ${r.votes || 0}
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div style="color:var(--text-light); font-size:1.1rem; font-weight:700;">&rsaquo;</div>
@@ -304,16 +344,49 @@ function renderRecentReports(reports) {
 }
 
 // ------------------------------------------------------------------------------
-// Modal de Detalle
+// Modal de Detalle y Trazabilidad Visual (Línea de Vida)
 // ------------------------------------------------------------------------------
 const trackingModal = document.getElementById('trackingModal');
 const btnCloseModal = document.getElementById('btnCloseModal');
+const btnDownloadCitizenPdf = document.getElementById('btnDownloadCitizenPdf');
+const btnVoteModal = document.getElementById('btnVoteModal');
+
+function updateVisualStepper(status) {
+    const lineFill = document.getElementById('modalStepperLine');
+    const step2 = document.getElementById('stepNode2');
+    const step3 = document.getElementById('stepNode3');
+    const circle2 = document.getElementById('stepCircle2');
+    const circle3 = document.getElementById('stepCircle3');
+
+    if (!lineFill || !step2 || !step3) return;
+
+    step2.className = 'stepper-step';
+    step3.className = 'stepper-step';
+    circle2.textContent = '2';
+    circle3.textContent = '3';
+
+    if (status === 'Pendiente') {
+        lineFill.style.width = '15%';
+    } else if (status === 'En proceso') {
+        lineFill.style.width = '55%';
+        step2.className = 'stepper-step active';
+        circle2.textContent = '⚡';
+    } else if (status === 'Resuelto') {
+        lineFill.style.width = '100%';
+        step2.className = 'stepper-step completed';
+        circle2.textContent = '✓';
+        step3.className = 'stepper-step completed';
+        circle3.textContent = '✓';
+    }
+}
 
 function openReportModal(id) {
     const r = currentReports.find(item => item.id === id);
     if (!r) return;
+    currentModalReport = r;
 
-    document.getElementById('modalRadicado').textContent = r.radicado || `SMR-2026-${String(r.id).padStart(4, '0')}`;
+    const radCode = r.radicado || `SMR-2026-${String(r.id).padStart(4, '0')}`;
+    document.getElementById('modalRadicado').textContent = radCode;
     document.getElementById('modalCategory').textContent = r.category;
     document.getElementById('modalLocation').textContent = `📍 ${r.location}`;
     document.getElementById('modalDescription').textContent = r.description;
@@ -327,6 +400,31 @@ function openReportModal(id) {
         </span>
     `;
 
+    // Actualizar Línea de Vida Visual
+    updateVisualStepper(r.status);
+
+    // Actualizar botón de apoyo ciudadano
+    const votesCount = document.getElementById('modalVotesCount');
+    if (votesCount) votesCount.textContent = r.votes || 0;
+
+    const isVoted = localStorage.getItem('sm_voted_' + r.id) === 'true';
+    if (btnVoteModal) {
+        if (isVoted) {
+            btnVoteModal.classList.add('voted');
+            btnVoteModal.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>¡Respaldaste este reporte! (<strong id="modalVotesCount">${r.votes || 0}</strong> apoyos)</span>
+            `;
+        } else {
+            btnVoteModal.classList.remove('voted');
+            btnVoteModal.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                <span>Me afecta este problema (<strong id="modalVotesCount">${r.votes || 0}</strong> apoyos)</span>
+            `;
+        }
+    }
+
+    // Nota de Cuadrilla Oficial
     const noteBox = document.getElementById('modalAdminNoteContainer');
     if (r.admin_notes) {
         noteBox.style.display = 'block';
@@ -335,9 +433,10 @@ function openReportModal(id) {
         noteBox.style.display = 'none';
     }
 
+    // Fotografía
     const imgBox = document.getElementById('modalImageContainer');
     if (r.image_url) {
-        imgBox.innerHTML = `<img src="${r.image_url}" style="width:100%; max-height:220px; object-fit:cover; border-radius:6px; border:1px solid #e2e8f0;">`;
+        imgBox.innerHTML = `<img src="${r.image_url}" style="width:100%; max-height:220px; object-fit:cover; border-radius:6px; border:1px solid #e2e8f0; margin-bottom:1rem;">`;
     } else {
         imgBox.innerHTML = '';
     }
@@ -347,6 +446,132 @@ function openReportModal(id) {
 
 btnCloseModal?.addEventListener('click', () => {
     trackingModal.style.display = 'none';
+});
+
+// Registrar Apoyo Ciudadano ("Me afecta")
+btnVoteModal?.addEventListener('click', async () => {
+    if (!currentModalReport) return;
+    const reportId = currentModalReport.id;
+
+    if (localStorage.getItem('sm_voted_' + reportId) === 'true') {
+        showToast('Ya has manifestado tu respaldo a este reporte');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_REPORTS_URL}/${reportId}/vote`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            localStorage.setItem('sm_voted_' + reportId, 'true');
+            showToast('¡Gracias por tu apoyo! Incidencia priorizada en el sistema');
+            currentModalReport.votes = data.votes;
+            
+            const votesCount = document.getElementById('modalVotesCount');
+            if (votesCount) votesCount.textContent = data.votes;
+            if (btnVoteModal) {
+                btnVoteModal.classList.add('voted');
+                btnVoteModal.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>¡Respaldaste este reporte! (<strong id="modalVotesCount">${data.votes}</strong> apoyos)</span>
+                `;
+            }
+            fetchReports(true);
+        } else {
+            showToast(data.error || 'Error al registrar apoyo', true);
+        }
+    } catch (e) {
+        showToast('Error de conexión con el servidor', true);
+    }
+});
+
+// Generar Comprobante de Radicación PDF para el Ciudadano
+btnDownloadCitizenPdf?.addEventListener('click', () => {
+    if (!currentModalReport || !window.jspdf) {
+        showToast('No fue posible generar el comprobante', true);
+        return;
+    }
+
+    try {
+        const report = currentModalReport;
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        // Cabecera Distrital
+        doc.setFillColor(7, 30, 51);
+        doc.rect(0, 0, pageWidth, 28, 'F');
+        doc.setFillColor(2, 132, 199);
+        doc.rect(0, 28, pageWidth, 2, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(255, 255, 255);
+        doc.text('ALCALDÍA DISTRITAL DE SANTA MARTA', 14, 12);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(224, 242, 254);
+        doc.text('COMPROBANTE OFICIAL DE RADICACIÓN CIUDADANA', 14, 18);
+        doc.text('Sistema Distrital de Incidencias Urbanas • Santa Marta Reporta', 14, 23);
+
+        const radCode = report.radicado || `SMR-2026-${String(report.id).padStart(4, '0')}`;
+
+        // Recuadro de Radicado
+        doc.setFillColor(241, 245, 249);
+        doc.roundedRect(14, 36, pageWidth - 28, 22, 2, 2, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(100, 116, 139);
+        doc.text('RADICADO OFICIAL:', 20, 43);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(2, 132, 199);
+        doc.text(radCode, 20, 52);
+
+        doc.setFontSize(11);
+        doc.setTextColor(15, 23, 42);
+        doc.text(`ESTADO: ${report.status.toUpperCase()}`, pageWidth - 20, 52, { align: 'right' });
+
+        const infoData = [
+            ['Ciudadano Solicitante:', report.citizen_name || 'Ciudadano Registrado'],
+            ['Teléfono de Contacto:', report.citizen_phone || 'No registrado'],
+            ['Correo Electrónico:', report.citizen_email || 'No registrado'],
+            ['Fecha de Radicación:', formatDateCustom(report.created_at)],
+            ['Categoría de Incidencia:', report.category],
+            ['Ubicación Notificada:', report.location],
+            ['Coordenadas Cartográficas:', `Lat: ${report.latitude || '11.24079'}  |  Lng: ${report.longitude || '-74.19904'}`],
+            ['Descripción Ciudadana:', report.description],
+            ['Respuesta Oficial de Cuadrilla:', report.admin_notes || 'En espera de despacho técnico'],
+            ['Apoyos Comunitarios Recibidos:', `${report.votes || 0} ciudadanos respaldan este caso`]
+        ];
+
+        doc.autoTable({
+            body: infoData,
+            startY: 64,
+            theme: 'striped',
+            styles: { fontSize: 9, cellPadding: 3.5, textColor: [30, 41, 59] },
+            columnStyles: {
+                0: { cellWidth: 55, fontStyle: 'bold', textColor: [15, 23, 42] },
+                1: { cellWidth: 'auto' }
+            }
+        });
+
+        const finalY = doc.lastAutoTable.finalY + 16;
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.text('Este documento certifica la radicación formal ante el Distrito de Santa Marta.', 14, finalY);
+        doc.text(`Generado en línea el ${new Date().toLocaleString('es-CO')}`, 14, finalY + 5);
+
+        doc.save(`Comprobante_Ciudadano_${radCode}.pdf`);
+        showToast(`Comprobante ${radCode} descargado en PDF`);
+    } catch (e) {
+        console.error('Error generando comprobante ciudadano PDF:', e);
+        showToast('Error al generar comprobante PDF', true);
+    }
 });
 
 // ------------------------------------------------------------------------------
@@ -408,7 +633,7 @@ function handleImg(file) {
 }
 
 // ------------------------------------------------------------------------------
-// Envío del Formulario
+// Envío del Formulario Ciudadano
 // ------------------------------------------------------------------------------
 document.getElementById('reportForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -417,10 +642,46 @@ document.getElementById('reportForm')?.addEventListener('submit', async (e) => {
 
     try {
         const formData = new FormData(e.target);
-        
-        // Si no hay descripción, generar una amigable basada en la categoría
-        const categoryVal = document.getElementById('category').value;
-        formData.set('description', `Incidencia de ${categoryVal} reportada en el sector.`);
+        const firstName = document.getElementById('first_name')?.value.trim() || '';
+        const lastName = document.getElementById('last_name')?.value.trim() || '';
+        const email = document.getElementById('citizen_email')?.value.trim() || '';
+        const phone = document.getElementById('citizen_phone')?.value.trim() || '';
+        const categoryVal = document.getElementById('category')?.value || '';
+        const descInput = document.getElementById('description')?.value.trim();
+        const locInput = document.getElementById('location')?.value.trim();
+
+        if (!firstName || !lastName) {
+            showToast('Por favor ingresa tu nombre y apellido', true);
+            btn.disabled = false;
+            return;
+        }
+
+        if (!email) {
+            showToast('Por favor ingresa tu correo electrónico', true);
+            btn.disabled = false;
+            return;
+        }
+
+        if (!phone) {
+            showToast('Por favor ingresa tu número de teléfono', true);
+            btn.disabled = false;
+            return;
+        }
+
+        formData.set('citizen_name', `${firstName} ${lastName}`);
+        formData.set('citizen_email', email);
+        formData.set('citizen_phone', phone);
+
+        // Validar y asegurar datos reales
+        if (descInput) {
+            formData.set('description', descInput);
+        } else {
+            formData.set('description', `Incidencia de ${categoryVal} reportada en el sector.`);
+        }
+
+        if (locInput) {
+            formData.set('location', locInput);
+        }
 
         const res = await fetch(API_REPORTS_URL, {
             method: 'POST',
@@ -438,7 +699,7 @@ document.getElementById('reportForm')?.addEventListener('submit', async (e) => {
             showToast(data.error || 'Error al radicar reporte', true);
         }
     } catch (err) {
-        showToast('Error de conexión', true);
+        showToast('Error de conexión con el servidor', true);
     } finally {
         btn.disabled = false;
     }
@@ -473,7 +734,7 @@ function filterByKpi(status) {
 }
 
 // ------------------------------------------------------------------------------
-// Carrusel Infinito Continuo del Hero (Fotos de Santa Marta que nunca se detiene)
+// Carrusel Infinito Continuo del Hero
 // ------------------------------------------------------------------------------
 function initInfiniteHeroCarousel() {
     const slides = document.querySelectorAll('.hero-slide');
@@ -498,18 +759,16 @@ function initInfiniteHeroCarousel() {
         }
     }
 
-    // Intervalo infinito continuo: nunca se detiene (cada 3.8 segundos)
     setInterval(goToNextSlide, 3800);
 }
 
 // ------------------------------------------------------------------------------
-// Comportamiento del Encabezado: Clic en Santa Marta Distrito devuelve al inicio
+// Comportamiento del Encabezado
 // ------------------------------------------------------------------------------
 function initBrandHeaderNavigation() {
     const brandLinks = document.querySelectorAll('.brand-link-header, .brand-system-link');
     brandLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            // Si ya estamos en index o raíz, hacer scroll suave al inicio
             const currentPath = window.location.pathname;
             if (currentPath === '/' || currentPath.endsWith('index.html') || currentPath === '') {
                 e.preventDefault();
@@ -518,6 +777,13 @@ function initBrandHeaderNavigation() {
         });
     });
 }
+
+// ------------------------------------------------------------------------------
+// Sincronización en Tiempo Real (Cada 6 Segundos)
+// ------------------------------------------------------------------------------
+setInterval(() => {
+    fetchReports(true);
+}, 6000);
 
 // ------------------------------------------------------------------------------
 // Inicialización

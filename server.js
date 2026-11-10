@@ -3,9 +3,10 @@ const cors = require('cors');
 const path = require('path');
 const { getDb } = require('./src/config/database');
 const reportRoutes = require('./src/routes/reportRoutes');
+const authRoutes = require('./src/routes/authRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const INITIAL_PORT = parseInt(process.env.PORT || '3000', 10);
 
 // Middleware
 app.use(cors()); // Permitir peticiones de otros orígenes
@@ -17,7 +18,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Servir la carpeta de uploads para que las imágenes sean accesibles públicamente
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Rutas de portales separados
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('/ciudadano', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Rutas de la API
+app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
 
 // Manejo de errores global de Multer
@@ -32,24 +43,31 @@ app.use((err, req, res, next) => {
     next();
 });
 
-// Iniciar el servidor
+// Iniciar el servidor con fallback inteligente si el puerto está en uso
+function startListening(port) {
+    const srv = app.listen(port, () => {
+        console.log(`\n=============================================================`);
+        console.log(`✅ Servidor de Santa Marta Reporta iniciado con éxito`);
+        console.log(`   🌐 Portal Ciudadano:       http://localhost:${port}/ciudadano (o http://localhost:${port}/)`);
+        console.log(`   🛡️  Portal Administrativo:  http://localhost:${port}/admin`);
+        console.log(`=============================================================\n`);
+    }).on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+            console.warn(`⚠️  El puerto ${port} está ocupado por otra aplicación. Probando puerto alternativo ${port + 1}...`);
+            startListening(port + 1);
+        } else {
+            console.error('Error al iniciar el servidor:', err);
+            process.exit(1);
+        }
+    });
+}
+
 async function startServer() {
     try {
-        // Inicializar la base de datos antes de escuchar peticiones
         await getDb();
-        
-        app.listen(PORT, '0.0.0.0', () => {
-            console.log(`Servidor de Santa Marta Reporta iniciado en http://localhost:${PORT}`);
-            console.log(`También puedes intentar acceder desde http://127.0.0.1:${PORT}`);
-        }).on('error', (err) => {
-            if (err.code === 'EADDRINUSE') {
-                console.error(`El puerto ${PORT} ya está en uso. Por favor, cierra otros programas que puedan estar usándolo.`);
-            } else {
-                console.error(err);
-            }
-        });
+        startListening(INITIAL_PORT);
     } catch (error) {
-        console.error('No se pudo iniciar el servidor:', error);
+        console.error('No se pudo inicializar la base de datos:', error);
         process.exit(1);
     }
 }

@@ -39,10 +39,33 @@ const upload = multer({
 // Controlador para crear un reporte
 const createReport = async (req, res) => {
     try {
-        const { description, category, location, latitude, longitude } = req.body;
+        const { 
+            description, 
+            category, 
+            location, 
+            latitude, 
+            longitude,
+            citizen_name,
+            first_name,
+            last_name,
+            citizen_email,
+            citizen_phone
+        } = req.body;
         
+        // Unificar nombre y apellido si vienen por separado
+        const resolvedName = citizen_name || (first_name && last_name ? `${first_name.trim()} ${last_name.trim()}` : (first_name || last_name || ''));
+
+        if (!resolvedName || resolvedName.trim().length < 3) {
+            return res.status(400).json({ error: 'El nombre y apellido del ciudadano son obligatorios.' });
+        }
+        if (!citizen_email || !citizen_email.trim()) {
+            return res.status(400).json({ error: 'El correo electrónico del ciudadano es obligatorio.' });
+        }
+        if (!citizen_phone || !citizen_phone.trim()) {
+            return res.status(400).json({ error: 'El número de teléfono de contacto es obligatorio.' });
+        }
         if (!description || !category || !location) {
-            return res.status(400).json({ error: 'Faltan datos obligatorios (categoría, descripción o ubicación).' });
+            return res.status(400).json({ error: 'Faltan datos de la incidencia (categoría, descripción o ubicación).' });
         }
 
         const image_url = req.file ? `/uploads/${req.file.filename}` : null;
@@ -53,7 +76,10 @@ const createReport = async (req, res) => {
             location,
             latitude: latitude ? parseFloat(latitude) : 11.24079,
             longitude: longitude ? parseFloat(longitude) : -74.19904,
-            image_url
+            image_url,
+            citizen_name: resolvedName,
+            citizen_email: citizen_email.trim(),
+            citizen_phone: citizen_phone.trim()
         };
 
         const newReport = await reportService.createReport(reportData);

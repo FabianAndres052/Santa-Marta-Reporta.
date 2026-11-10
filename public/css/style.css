@@ -1059,3 +1059,561 @@ body {
     .kpi-row-container { grid-template-columns: repeat(2, 1fr); }
     .hero-content-right { display: none; }
 }
+
+
+/* ==============================================================================
+   ESTILOS DEDICADOS: PORTAL ADMINISTRATIVO Y EXPORTACIONES
+   ============================================================================== */
+
+/* Barra Superior de Administración */
+.admin-navbar {
+    background: #0f172a;
+    color: #ffffff;
+    height: 72px;
+    padding: 0 4%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #0284c7;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.admin-badge {
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+.admin-user-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.82rem;
+    color: #e2e8f0;
+}
+
+.btn-admin-logout {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+}
+
+.btn-admin-logout:hover {
+    background: #b91c1c;
+}
+
+/* Contenedor Principal Admin */
+.admin-main-container {
+    max-width: 1440px;
+    margin: 1.5rem auto;
+    padding: 0 2%;
+    width: 100%;
+}
+
+/* Tarjetas de Estadísticas Admin */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+}
+
+.stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-info h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.stat-info p {
+    font-size: 0.78rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: 2px;
+}
+
+/* Barra de Herramientas y Exportaciones */
+.admin-toolbar {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+
+.admin-export-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-export-xls {
+    background: #107c41;
+    color: #ffffff;
+    border: none;
+    padding: 0.55rem 1rem;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(16, 124, 65, 0.2);
+    transition: background 0.2s, transform 0.15s;
+}
+
+.btn-export-xls:hover {
+    background: #0c5e31;
+    transform: translateY(-1px);
+}
+
+.btn-export-pdf {
+    background: #b91c1c;
+    color: #ffffff;
+    border: none;
+    padding: 0.55rem 1rem;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(185, 28, 28, 0.2);
+    transition: background 0.2s, transform 0.15s;
+}
+
+.btn-export-pdf:hover {
+    background: #991b1b;
+    transform: translateY(-1px);
+}
+
+.btn-export-csv {
+    background: #334155;
+    color: #f1f5f9;
+    border: none;
+    padding: 0.55rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-export-csv:hover {
+    background: #1e293b;
+}
+
+/* Tabla Estilizada de Gestión */
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+    background: #ffffff;
+    text-align: left;
+}
+
+.styled-table thead tr {
+    background: #0f172a;
+    color: #f8fafc;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.styled-table th, 
+.styled-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+.styled-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.styled-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.btn-table-action {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.btn-table-action:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+
+.btn-table-danger {
+    color: #dc2626;
+    border-color: #fecaca;
+    background: #fef2f2;
+}
+
+.btn-table-danger:hover {
+    background: #dc2626;
+    color: #ffffff;
+    border-color: #dc2626;
+}
+
+.btn-table-pdf {
+    color: #b91c1c;
+    border-color: #fecaca;
+    background: #fff5f5;
+}
+
+.btn-table-pdf:hover {
+    background: #b91c1c;
+    color: #ffffff;
+    border-color: #b91c1c;
+}
+
+/* Pantalla de Inicio de Sesión Administrativo */
+.admin-login-wrapper {
+    min-height: calc(100vh - 72px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #071e33 0%, #0c385b 50%, #0f172a 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-login-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 440px;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+    padding: 2.25rem 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 10;
+}
+
+.admin-login-header {
+    text-align: center;
+    margin-bottom: 1.75rem;
+}
+
+.admin-login-header img {
+    height: 64px;
+    width: auto;
+    margin-bottom: 0.75rem;
+}
+
+.admin-login-header h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.admin-login-header p {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+.login-credentials-hint {
+    background: #f0fdf4;
+    border: 1px dashed #86efac;
+    color: #166534;
+    font-size: 0.76rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ==============================================================================
+   LÍNEA DE VIDA / TRAZABILIDAD VISUAL (REDUCE LECTURA)
+   ============================================================================== */
+.visual-stepper-box {
+    margin: 1rem 0 1.25rem 0;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1rem 0.75rem;
+}
+
+.visual-stepper-title {
+    font-size: 0.7rem;
+    color: #64748b;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+.stepper-steps-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.stepper-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    text-align: center;
+}
+
+.stepper-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    transition: all 0.25s ease;
+}
+
+.stepper-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-top: 6px;
+    line-height: 1.1;
+}
+
+.stepper-step.completed .stepper-circle {
+    background: #10b981;
+    color: #ffffff;
+}
+
+.stepper-step.completed .stepper-label {
+    color: #047857;
+    font-weight: 700;
+}
+
+.stepper-step.active .stepper-circle {
+    background: #0284c7;
+    color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25);
+}
+
+.stepper-step.active .stepper-label {
+    color: #0284c7;
+    font-weight: 800;
+}
+
+.stepper-line {
+    position: absolute;
+    top: 16px;
+    left: 15%;
+    right: 15%;
+    height: 2px;
+    background: #e2e8f0;
+    z-index: 1;
+}
+
+.stepper-line-fill {
+    height: 100%;
+    background: #10b981;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* Botón de Carga Rápida de Caso de Demostración */
+.btn-demo-quick {
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px dashed #22c55e;
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.btn-demo-quick:hover {
+    background: #dcfce7;
+    border-color: #16a34a;
+}
+
+
+/* ==============================================================================
+   AJUSTES PROFESIONALES: INDICADOR EN VIVO, SELECT ESTADOS Y APOYO CIUDADANO
+   ============================================================================== */
+
+.admin-status-dropdown {
+    min-width: 150px;
+    width: 100%;
+    padding: 0.45rem 0.65rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    cursor: pointer;
+    color: #0f172a;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.admin-status-dropdown:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+}
+
+.live-sync-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.live-dot-green {
+    width: 7px;
+    height: 7px;
+    background: #22c55e;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #22c55e;
+    animation: livePulse 2s infinite ease-in-out;
+}
+
+@keyframes livePulse {
+    0% { transform: scale(0.95); opacity: 0.7; }
+    50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 10px #22c55e; }
+    100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.btn-vote-action {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1.5px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 0.6rem;
+    transition: all 0.2s ease;
+}
+
+.btn-vote-action:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    transform: translateY(-1px);
+}
+
+.btn-vote-action:active {
+    transform: translateY(0);
+}
+
+.btn-vote-action.voted {
+    background: #dcfce7;
+    color: #15803d;
+    border-color: #86efac;
+    cursor: default;
+}

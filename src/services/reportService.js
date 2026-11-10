@@ -2,6 +2,15 @@ const reportRepository = require('../repositories/reportRepository');
 
 // Servicio para crear reporte
 async function createReport(reportData) {
+    if (!reportData.citizen_name || reportData.citizen_name.trim().length < 3) {
+        throw new Error('Debe registrar su nombre y apellido completos.');
+    }
+    if (!reportData.citizen_email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reportData.citizen_email.trim())) {
+        throw new Error('Debe ingresar un correo electrónico válido (ej. ciudadano@correo.com).');
+    }
+    if (!reportData.citizen_phone || reportData.citizen_phone.trim().length < 7) {
+        throw new Error('Debe ingresar un número de teléfono de contacto válido.');
+    }
     if (!reportData.description || reportData.description.trim().length < 5) {
         throw new Error('La descripción debe contener al menos 5 caracteres.');
     }
@@ -17,6 +26,9 @@ async function createReport(reportData) {
 
     return await reportRepository.createReport({
         ...reportData,
+        citizen_name: reportData.citizen_name.trim(),
+        citizen_email: reportData.citizen_email.trim().toLowerCase(),
+        citizen_phone: reportData.citizen_phone.trim(),
         latitude: lat,
         longitude: lng
     });

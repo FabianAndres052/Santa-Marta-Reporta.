@@ -9,13 +9,16 @@ async function createReport(reportData) {
         location, 
         latitude = 11.24079, 
         longitude = -74.19904, 
-        image_url 
+        image_url,
+        citizen_name,
+        citizen_email,
+        citizen_phone
     } = reportData;
     
     const result = await db.run(
-        `INSERT INTO reports (description, category, location, latitude, longitude, image_url, votes, status, created_at, updated_at) 
-         VALUES (?, ?, ?, ?, ?, ?, 0, 'Pendiente', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-        [description, category, location, latitude, longitude, image_url]
+        `INSERT INTO reports (description, category, location, latitude, longitude, image_url, citizen_name, citizen_email, citizen_phone, votes, status, created_at, updated_at) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'Pendiente', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+        [description, category, location, latitude, longitude, image_url, citizen_name, citizen_email, citizen_phone]
     );
 
     const newId = result.lastID;
@@ -29,7 +32,7 @@ async function createReport(reportData) {
     return await getReportById(newId);
 }
 
-// Obtener reportes con soporte para filtros opcionales (categoría, estado, búsqueda por radicado/texto)
+// Obtener reportes con soporte para filtros opcionales (categoría, estado, búsqueda por radicado/texto/ciudadano)
 async function getAllReports(filters = {}) {
     const db = await getDb();
     const { category, status, search } = filters;
@@ -48,9 +51,9 @@ async function getAllReports(filters = {}) {
     }
 
     if (search && search.trim() !== '') {
-        query += ' AND (radicado LIKE ? OR location LIKE ? OR description LIKE ?)';
+        query += ' AND (radicado LIKE ? OR location LIKE ? OR description LIKE ? OR citizen_name LIKE ? OR citizen_phone LIKE ?)';
         const searchTerm = `%${search.trim()}%`;
-        params.push(searchTerm, searchTerm, searchTerm);
+        params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
     }
 
     query += ' ORDER BY created_at DESC';

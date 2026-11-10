@@ -26,6 +26,9 @@ async function initDatabase() {
                 image_url TEXT,
                 votes INTEGER DEFAULT 0,
                 admin_notes TEXT,
+                citizen_name TEXT,
+                citizen_email TEXT,
+                citizen_phone TEXT,
                 status TEXT DEFAULT 'Pendiente',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -36,6 +39,15 @@ async function initDatabase() {
         const tableInfo = await db.all("PRAGMA table_info(reports)");
         const existingColumns = tableInfo.map(col => col.name);
 
+        if (!existingColumns.includes('citizen_name')) {
+            await db.exec("ALTER TABLE reports ADD COLUMN citizen_name TEXT");
+        }
+        if (!existingColumns.includes('citizen_email')) {
+            await db.exec("ALTER TABLE reports ADD COLUMN citizen_email TEXT");
+        }
+        if (!existingColumns.includes('citizen_phone')) {
+            await db.exec("ALTER TABLE reports ADD COLUMN citizen_phone TEXT");
+        }
         if (!existingColumns.includes('radicado')) {
             await db.exec("ALTER TABLE reports ADD COLUMN radicado TEXT");
         }

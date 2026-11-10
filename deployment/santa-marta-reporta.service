@@ -1,0 +1,21 @@
+[Unit]
+Description=Santa Marta Reporta - Sistema Distrital de Incidencias Urbanas
+Documentation=https://github.com/FabianAndres052/Santa-Marta-Reporta..git
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/var/www/santa-marta-reporta
+ExecStart=/usr/bin/node /var/www/santa-marta-reporta/server.js
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=santa-marta-reporta
+Environment=NODE_ENV=production
+Environment=PORT=3000
+
+[Install]
+WantedBy=multi-user.target
+
